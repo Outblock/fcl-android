@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "fcl-android"
-include ':app'
+include ':example'
 include ':fcl-android'
