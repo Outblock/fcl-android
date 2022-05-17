@@ -1,8 +1,10 @@
 package io.outblock.fcl
 
+import io.outblock.fcl.utils.ioScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -13,5 +15,12 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+        ioScope {
+            withTimeout(1000) {
+                println("1212")
+                delay(2000)
+                println("aassd")
+            }
+        }
     }
 }
