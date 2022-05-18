@@ -1,10 +1,17 @@
 package io.outblock.fcl.response
 
+import com.google.gson.annotations.SerializedName
+
 data class PollingResponse(
+    @SerializedName("status")
     val status: ResponseStatus,
+    @SerializedName("data")
     val data: PollingData?,
+    @SerializedName("updates")
     val updates: Service?,
+    @SerializedName("local")
     val local: Service?,
+    @SerializedName("reason")
     val reason: String?
 ) {
     fun isPending(): Boolean {
@@ -21,13 +28,19 @@ data class PollingResponse(
 }
 
 data class PollingData(
+    @SerializedName("addr")
     val addr: String,
-    val services: Array<Service>?
+    @SerializedName("services")
+    val services: List<Service>?
 )
 
 data class Service(
+    @SerializedName("type")
     val type: String?,
+    @SerializedName("method")
     val method: String?,
-    val endpoint: String,
-    var params: Map<String, String>
+    @SerializedName("endpoint")
+    val endpoint: String?,
+    @SerializedName("params")
+    val params: Map<String, String>?,
 )

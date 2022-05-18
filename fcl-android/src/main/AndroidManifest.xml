@@ -2,4 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.outblock.fcl">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application>
+        <activity android:name=".webview.WebViewActivity"/>
+    </application>
 </manifest>

@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.browser.customtabs.CustomTabsIntent
 import io.outblock.fcl.FCL
 import io.outblock.fcl.RetrofitApi
+import io.outblock.fcl.config.Config
 import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.response.AuthnResponse
 import io.outblock.fcl.response.PollingResponse
 import io.outblock.fcl.retrofitApi
-import io.outblock.fcl.utils.ioScope
-import io.outblock.fcl.utils.makeServiceUrl
-import io.outblock.fcl.utils.repeatWhen
-import io.outblock.fcl.utils.runBlockDelay
+import io.outblock.fcl.utils.*
 import kotlinx.coroutines.withTimeout
 
 class FCLAuthn {
@@ -21,13 +19,13 @@ class FCLAuthn {
         onComplete: (AuthnResponse) -> Unit,
     ) {
         ioScope {
-            val exception = kotlin.runCatching {
+            kotlin.runCatching {
                 val client = retrofitApi(FCL.providers.get(provider).endpoint.toString())
 
                 val auth = client.requestAuthentication()
                 val service = auth.local ?: throw Exception("not provided login iframe")
 
-                this.openLoginTab(context, service.endpoint, service.params)
+                this.openLoginTab(context, service.endpoint.orEmpty(), service.params.orEmpty())
 
                 client.getAuthenticationResult(auth) {
                     onComplete(AuthnResponse(it.data?.addr, it.status, it.reason))
@@ -48,20 +46,21 @@ class FCLAuthn {
             }
 
             val uri = makeServiceUrl(
-                authentication.updates.endpoint,
-                authentication.updates.params,
-                "https://foo.com",
+                authentication.updates.endpoint.orEmpty(),
+                authentication.updates.params.orEmpty(),
+                FCL.config.get(Config.KEY.location).orEmpty(),
             )
 
             var response: PollingResponse? = null
             withTimeout(secondsTimeout * 1000) {
-                repeatWhen(predicate = { !(response?.isPending() ?: true) }) {
+                repeatWhen(predicate = { (response?.isPending() ?: true) }) {
                     runBlockDelay(1000) {
                         response = getAuthentication(uri.toString())
+                        logd(TAG, "getAuthenticationResult: $response")
                     }
                 }
             }
-            response?.let { onComplete.invoke(it) }
+            uiScope { response?.let { onComplete.invoke(it) } }
         }
     }
 
@@ -70,9 +69,13 @@ class FCLAuthn {
         url: String,
         params: Map<String, String>,
     ) {
-        val uri = makeServiceUrl(url, params, "http://foo.com")
+        val uri = makeServiceUrl(url, params, FCL.config.get(Config.KEY.location).orEmpty())
 
         val tabIntent = CustomTabsIntent.Builder().build()
         tabIntent.launchUrl(context, uri)
+    }
+
+    companion object {
+        private const val TAG = "FCLAuthn"
     }
 }
