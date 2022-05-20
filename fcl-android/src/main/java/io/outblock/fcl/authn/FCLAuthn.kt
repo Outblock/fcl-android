@@ -12,7 +12,7 @@ import io.outblock.fcl.retrofitApi
 import io.outblock.fcl.utils.*
 import kotlinx.coroutines.withTimeout
 
-class FCLAuthn {
+internal class FCLAuthn {
     fun authenticate(
         context: Context,
         provider: Provider,
@@ -48,7 +48,7 @@ class FCLAuthn {
             val uri = makeServiceUrl(
                 authentication.updates.endpoint.orEmpty(),
                 authentication.updates.params.orEmpty(),
-                FCL.config.get(Config.KEY.location).orEmpty(),
+                FCL.config.get(Config.KEY.Location).orEmpty(),
             )
 
             var response: PollingResponse? = null
@@ -69,7 +69,7 @@ class FCLAuthn {
         url: String,
         params: Map<String, String>,
     ) {
-        val uri = makeServiceUrl(url, params, FCL.config.get(Config.KEY.location).orEmpty())
+        val uri = makeServiceUrl(url, params, FCL.config.get(Config.KEY.Location).orEmpty())
 
         val tabIntent = CustomTabsIntent.Builder().build()
         tabIntent.launchUrl(context, uri)

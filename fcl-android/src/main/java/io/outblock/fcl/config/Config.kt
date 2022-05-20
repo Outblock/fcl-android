@@ -7,17 +7,17 @@ class Config {
     private val map = mutableMapOf<String, String>()
 
     enum class KEY(val value: String) {
-        accessNode("accessNode.api"),
-        icon("app.detail.icon"),
-        title("app.detail.title"),
-        handshake("challenge.handshake"),
-        scope("challenge.scope"),
-        wallet("discovery.wallet"),
-        authn("authn"),
-        env("env"),
-        location("location"),
-        openIDScope("service.OpenID.scopes"),
-        domainTag("fcl.appDomainTag"),
+        AccessNode("accessNode.api"),
+        Icon("app.detail.icon"),
+        Title("app.detail.title"),
+        Handshake("challenge.handshake"),
+        Scope("challenge.scope"),
+        Wallet("discovery.wallet"),
+        Authn("authn"),
+        Env("env"),
+        Location("location"),
+        OpenIDScope("service.OpenID.scopes"),
+        DomainTag("fcl.appDomainTag"),
     }
 
     fun configLens(regex: String): Map<String, String> {

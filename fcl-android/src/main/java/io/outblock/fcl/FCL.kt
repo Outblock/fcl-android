@@ -30,14 +30,14 @@ object FCL {
         authn: String,
     ) {
         with(config) {
-            put(Config.KEY.title, appName)
-            put(Config.KEY.icon, appIcon)
-            put(Config.KEY.location, location)
-            put(Config.KEY.wallet, walletNode)
-            put(Config.KEY.accessNode, accessNode)
-            put(Config.KEY.env, env)
-            put(Config.KEY.scope, scope)
-            put(Config.KEY.authn, authn)
+            put(Config.KEY.Title, appName)
+            put(Config.KEY.Icon, appIcon)
+            put(Config.KEY.Location, location)
+            put(Config.KEY.Wallet, walletNode)
+            put(Config.KEY.AccessNode, accessNode)
+            put(Config.KEY.Env, env)
+            put(Config.KEY.Scope, scope)
+            put(Config.KEY.Authn, authn)
         }
     }
 

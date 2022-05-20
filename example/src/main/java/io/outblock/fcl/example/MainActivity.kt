@@ -1,5 +1,6 @@
 package io.outblock.fcl.example
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "authenticate complete:$it")
                 Toast.makeText(this, "authenticate complete", Toast.LENGTH_SHORT).show()
                 findViewById<TextView>(R.id.address).text = it.address
+                startActivity(Intent(this, MainActivity::class.java))
             }
         }
 
