@@ -1,7 +1,7 @@
 package io.outblock.fcl
 
 import com.google.gson.GsonBuilder
-import io.outblock.fcl.response.PollingResponse
+import io.outblock.fcl.models.response.PollingResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

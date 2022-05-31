@@ -5,9 +5,8 @@ import androidx.browser.customtabs.CustomTabsIntent
 import io.outblock.fcl.FCL
 import io.outblock.fcl.RetrofitApi
 import io.outblock.fcl.config.Config
+import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.provider.Provider
-import io.outblock.fcl.response.AuthnResponse
-import io.outblock.fcl.response.PollingResponse
 import io.outblock.fcl.retrofitApi
 import io.outblock.fcl.utils.*
 import kotlinx.coroutines.withTimeout
@@ -16,7 +15,7 @@ internal class FCLAuthn {
     fun authenticate(
         context: Context,
         provider: Provider,
-        onComplete: (AuthnResponse) -> Unit,
+        onComplete: (PollingResponse) -> Unit,
     ) {
         ioScope {
             kotlin.runCatching {
@@ -27,9 +26,7 @@ internal class FCLAuthn {
 
                 this.openLoginTab(context, service.endpoint.orEmpty(), service.params.orEmpty())
 
-                client.getAuthenticationResult(auth) {
-                    onComplete(AuthnResponse(it.data?.addr, it.status, it.reason))
-                }
+                client.getAuthenticationResult(auth) { onComplete(it) }
             }
         }
     }

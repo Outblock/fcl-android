@@ -69,5 +69,85 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Transaction -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="3dp"
+            app:strokeWidth="1dp">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="12dp">
+
+                <EditText
+                    android:id="@+id/transaction_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:paddingHorizontal="0dp"
+                    android:paddingVertical="10dp"
+                    android:textSize="12sp"
+                    tools:text="   transaction(test: String, testInt: Int) {\n       prepare(signer: AuthAccount) {\n            log(signer.address)\n            log(test)\n            log(testInt)\n       }\n   }"/>
+
+                <LinearLayout
+                    android:id="@+id/txid_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="10dp"
+                        android:background="#ccc"/>
+
+                    <TextView
+                        android:id="@+id/txid_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#333"
+                        android:textSize="13sp"
+                        tools:text="asfhjcnaspf0pjanwbpfoihabfpuipabfobaofsbisUFOba"/>
+
+                    <TextView
+                        android:id="@+id/view_on_flow_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="10dp"
+                        android:textColor="@color/accent"
+                        android:textSize="13sp"
+                        android:text="View on flow scan"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="10dp"
+                        android:background="#ccc"/>
+                </LinearLayout>
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_send_transaction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send Transaction"
+                    android:textAllCaps="false"
+                    app:cornerRadius="12dp"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
