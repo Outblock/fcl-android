@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.FCL
 import io.outblock.fcl.provider.WalletProvider
 import io.outblock.fcl.send.send
+import io.outblock.fcl.utils.ioScope
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,8 +82,10 @@ class MainActivity : AppCompatActivity() {
         )
 
         button.setOnClickListener {
-            FCL.send {
-                script(editText.text.toString())
+            ioScope {
+                FCL.send {
+                    script(editText.text.toString())
+                }
             }
         }
     }

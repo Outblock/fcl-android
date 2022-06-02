@@ -16,7 +16,8 @@ object FCL {
 
     val config = Config()
 
-    private var currentUser: User? = null
+    var currentUser: User? = null
+        private set
 
     init {
         // TODO add from user

@@ -2,37 +2,42 @@ package io.outblock.fcl.models
 
 
 import com.google.gson.annotations.SerializedName
+import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.cadence.Field
+import io.outblock.fcl.FlowApi
+import io.outblock.fcl.models.response.PollingResponse
+import io.outblock.fcl.utils.createFlowField
+import io.outblock.fcl.utils.removeAddressPrefix
 
 data class Signable(
     @SerializedName("addr")
-    val addr: String,
-    @SerializedName("app")
-    val app: App,
+    val addr: String? = null,
+//    @SerializedName("app")
+//    val app: App,
     @SerializedName("args")
-    val args: List<Arg>,
+    val args: List<AsArgument>,
     @SerializedName("cadence")
-    val cadence: String,
+    val cadence: String? = null,
     @SerializedName("client")
-    val client: Client,
+    val client: Client? = null,
     @SerializedName("data")
-    val data: Data,
+    val data: Data? = null,
     @SerializedName("f_type")
-    val fType: String,
+    val fType: String = "Signable",
     @SerializedName("f_vsn")
-    val fVsn: String,
+    val fVsn: String = "1.0.1",
     @SerializedName("interaction")
     val interaction: Interaction,
     @SerializedName("keyId")
-    val keyId: Int,
+    val keyId: Int?,
     @SerializedName("message")
     val message: String,
     @SerializedName("roles")
     val roles: Roles,
-    @SerializedName("service")
-    val service: Service,
+//    @SerializedName("service")
+//    val service: Any,
     @SerializedName("voucher")
-    val voucher: Voucher
+    var voucher: Voucher? = null,
 ) {
 }
 
@@ -41,13 +46,6 @@ data class App(
     val icon: String,
     @SerializedName("title")
     val title: String
-)
-
-data class Arg(
-    @SerializedName("type")
-    val type: String,
-    @SerializedName("value")
-    val value: String
 )
 
 data class Client(
@@ -71,7 +69,7 @@ data class Interaction(
     @SerializedName("assigns")
     var assigns: Map<String, String> = mapOf(),
     @SerializedName("authorizations")
-    var authorizations: List<String> = listOf(),
+    var authorizations: MutableList<String> = mutableListOf(),
     @SerializedName("block")
     var block: Block = Block(),
     @SerializedName("collection")
@@ -137,19 +135,21 @@ class Account(
 
 data class SignableUser(
     @SerializedName("addr")
-    val addr: String,
+    val addr: String? = null,
     @SerializedName("keyId")
-    val keyId: Int,
+    val keyId: Int? = null,
     @SerializedName("kind")
-    val kind: Any,
+    val kind: String? = null,
     @SerializedName("role")
     val role: Roles,
     @SerializedName("sequenceNum")
-    val sequenceNum: Any,
+    var sequenceNum: Int? = null,
     @SerializedName("signature")
-    val signature: Any,
+    var signature: String? = null,
     @SerializedName("tempId")
-    val tempId: String
+    var tempId: String? = null,
+
+    var signingFunction: (suspend (data: String) -> PollingResponse)? = null,
 )
 
 data class Argument(
@@ -207,59 +207,75 @@ data class Message(
 
 data class Roles(
     @SerializedName("authorizer")
-    val authorizer: Boolean,
+    var authorizer: Boolean = false,
     @SerializedName("payer")
-    val payer: Boolean,
+    var payer: Boolean = false,
     @SerializedName("proposer")
-    val proposer: Boolean
-)
-
-class Service
+    var proposer: Boolean = false,
+) {
+    fun merge(role: Roles) {
+        proposer = proposer || role.proposer
+        authorizer = authorizer || role.authorizer
+        payer = payer || role.payer
+    }
+}
 
 data class Voucher(
     @SerializedName("arguments")
-    val arguments: List<AsArgument>,
+    val arguments: List<AsArgument>?,
     @SerializedName("authorizers")
-    val authorizers: List<String>,
+    val authorizers: List<String>?,
     @SerializedName("cadence")
-    val cadence: String,
+    val cadence: String?,
     @SerializedName("computeLimit")
-    val computeLimit: Int,
-    @SerializedName("envelopeSigs")
-    val envelopeSigs: List<EnvelopeSig>,
+    val computeLimit: Int?,
     @SerializedName("payer")
-    val payer: String,
+    val payer: String?,
     @SerializedName("payloadSigs")
-    val payloadSigs: List<PayloadSig>,
+    val payloadSigs: List<Singature>?,
+    @SerializedName("envelopeSigs")
+    val envelopeSigs: List<Singature>?,
     @SerializedName("proposalKey")
     val proposalKey: ProposalKey,
     @SerializedName("refBlock")
-    val refBlock: String
+    val refBlock: String?,
 )
 
-data class EnvelopeSig(
+data class Singature(
     @SerializedName("address")
     val address: String,
     @SerializedName("keyId")
-    val keyId: Int
-)
-
-data class PayloadSig(
-    @SerializedName("address")
-    val address: String,
-    @SerializedName("keyId")
-    val keyId: Int,
+    val keyId: Int?,
     @SerializedName("sig")
-    val sig: String
+    val sig: String?,
 )
 
 data class ProposalKey(
     @SerializedName("address")
-    val address: String,
+    val address: String? = null,
     @SerializedName("keyId")
-    val keyId: Int,
+    val keyId: Int? = null,
     @SerializedName("sequenceNum")
-    val sequenceNum: Int
+    val sequenceNum: Int? = null,
+)
+
+class PreSignable(
+    @SerializedName("f_type")
+    val fType: String = "PreSignable",
+    @SerializedName("f_vsn")
+    val fVsn: String = "1.0.1",
+    @SerializedName("roles")
+    val roles: Roles,
+    @SerializedName("cadence")
+    val cadence: String,
+    @SerializedName("args")
+    val args: List<AsArgument> = listOf(),
+    @SerializedName("data")
+    val data: Map<String, String> = mapOf(),
+    @SerializedName("interaction")
+    val interaction: Interaction = Interaction(),
+//    @SerializedName("voucher")
+//    val voucher: Voucher,
 )
 
 fun <T> Field<T>.toFclArgument(): Argument {
@@ -270,6 +286,107 @@ fun <T> Field<T>.toFclArgument(): Argument {
         xform = Argument.Xform(type),
         tempId = randomId(10),
     )
+}
+
+fun Interaction.toFlowTransaction(): FlowTransaction {
+    val proposalKey = createFlowProposalKey()
+
+    val payerAccount = payer
+    val payerAddress = accounts[payerAccount]?.addr ?: throw RuntimeException("missing payer")
+
+    val tx = FlowTransaction(
+        script = FlowScript(message.cadence.orEmpty()),
+        arguments = message.arguments.mapNotNull { arguments[it]?.asArgument }.mapNotNull { createFlowField(it.type, it.value) }
+            .map { FlowArgument(it) },
+        referenceBlockId = FlowId(message.refBlock.orEmpty()),
+        gasLimit = (message.computeLimit ?: 100).toLong(),
+        proposalKey = proposalKey,
+        payerAddress = FlowAddress(payerAddress.orEmpty()),
+        authorizers = authorizations.mapNotNull { accounts[it]?.addr }.distinct().map { FlowAddress(it) }
+    )
+
+    findInsideSigners().forEach { signer ->
+        accounts[signer]?.let {
+            val address = it.addr
+            val keyId = it.keyId
+            val signature = it.signature
+
+            tx.addPayloadSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
+        }
+    }
+
+    findOutsideSigners().forEach { signer ->
+        accounts[signer]?.let {
+            val address = it.addr
+            val keyId = it.keyId
+            val signature = it.signature
+
+            tx.addEnvelopeSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
+        }
+    }
+    return tx
+}
+
+fun Interaction.createFlowProposalKey(): FlowTransactionProposalKey {
+    val proposer = this.proposer
+    val account = accounts[proposer]
+    val address = account?.addr
+    val keyId = account?.keyId
+
+    if (proposer == null || account == null || address == null || keyId == null) {
+        throw RuntimeException("Invalid proposer")
+    }
+
+    val flowAddress = FlowAddress(address)
+
+    if (account.sequenceNum == null) {
+        val flowAccount = FlowApi.get().getAccountAtLatestBlock(flowAddress) ?: throw RuntimeException("Get flow account error")
+        account.sequenceNum = flowAccount.keys[keyId].sequenceNumber
+    }
+
+    return FlowTransactionProposalKey(
+        address = FlowAddress(address),
+        keyIndex = keyId,
+        sequenceNumber = (account.sequenceNum ?: 0).toLong()
+    )
+}
+
+fun Interaction.createProposalKey(): ProposalKey {
+    val proposer = proposer ?: return ProposalKey()
+    val account = accounts[proposer] ?: return ProposalKey()
+    return ProposalKey(
+        address = account.addr?.removeAddressPrefix(),
+        keyId = account.keyId,
+        sequenceNum = account.sequenceNum,
+    )
+}
+
+fun Interaction.isTransaction() = tag == Interaction.Tag.transaction.value
+
+fun Interaction.isScript() = tag == Interaction.Tag.script.value
+
+fun Interaction.buildPreSignable(roles: Roles): PreSignable {
+    return PreSignable(
+        roles = roles,
+        cadence = message.cadence.orEmpty(),
+        args = arguments.values.map { it.asArgument },
+        interaction = this,
+    )
+}
+
+fun Interaction.findInsideSigners(): List<String> {
+    // Inside Signers Are: (authorizers + proposer) - payer
+    val inside = authorizations.toMutableSet()
+    proposer?.let { inside.add(it) }
+
+    payer?.let { inside.remove(it) }
+    return inside.toList()
+}
+
+fun Interaction.findOutsideSigners(): List<String> {
+    // Outside Signers Are: (payer)
+    val payer = payer ?: return emptyList()
+    return listOf(payer)
 }
 
 private fun randomId(length: Int = 10): String {

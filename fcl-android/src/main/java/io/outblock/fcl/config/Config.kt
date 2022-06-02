@@ -1,6 +1,7 @@
 package io.outblock.fcl.config
 
 import com.nftco.flow.sdk.FlowChainId
+import io.outblock.fcl.FlowApi
 
 class Config {
 
@@ -28,13 +29,21 @@ class Config {
     fun get(key: KEY): String? = map[key.value]
     fun get(key: String): String? = map[key]
 
-    fun put(key: KEY, value: String): Config = apply { map[key.value] = value }
-    fun put(key: String, value: String): Config = apply { map[key] = value }
+    fun put(key: KEY, value: String): Config = apply { put(key.value, value) }
+
+    fun put(key: String, value: String): Config = apply {
+        map[key] = value
+        if (key == "env") {
+            FlowApi.configure(envToChainID(value))
+        }
+    }
 
     fun remove(key: KEY): Config = apply { map.remove(key.value) }
     fun remove(key: String): Config = apply { map.remove(key) }
 
     fun clear(): Config = apply { map.clear() }
+
+    fun data() = map.toMap()
 }
 
 /**
@@ -47,6 +56,7 @@ class Config {
  * unknown
  * -------------------------
  */
-fun Config.envToChainID(env: String): FlowChainId {
-    return FlowChainId.of(env)
+private fun Config.envToChainID(env: String): FlowChainId {
+    val id = (if (env.startsWith("flow-")) env else "flow-$env").lowercase()
+    return FlowChainId.of(id)
 }

@@ -3,11 +3,11 @@ package io.outblock.fcl.authn
 import android.content.Context
 import androidx.browser.customtabs.CustomTabsIntent
 import io.outblock.fcl.FCL
-import io.outblock.fcl.RetrofitApi
+import io.outblock.fcl.RetrofitAuthnApi
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.provider.Provider
-import io.outblock.fcl.retrofitApi
+import io.outblock.fcl.retrofitAuthnApi
 import io.outblock.fcl.utils.*
 import kotlinx.coroutines.withTimeout
 
@@ -19,7 +19,7 @@ internal class FCLAuthn {
     ) {
         ioScope {
             kotlin.runCatching {
-                val client = retrofitApi(FCL.providers.get(provider).endpoint.toString())
+                val client = retrofitAuthnApi(FCL.providers.get(provider).endpoint.toString())
 
                 val auth = client.requestAuthentication()
                 val service = auth.local ?: throw Exception("not provided login iframe")
@@ -31,7 +31,7 @@ internal class FCLAuthn {
         }
     }
 
-    private fun RetrofitApi.getAuthenticationResult(
+    private fun RetrofitAuthnApi.getAuthenticationResult(
         authentication: PollingResponse,
         secondsTimeout: Long = 300,
         onComplete: (PollingResponse) -> Unit,
