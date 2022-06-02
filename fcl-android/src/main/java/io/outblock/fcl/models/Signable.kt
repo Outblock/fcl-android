@@ -12,8 +12,8 @@ import io.outblock.fcl.utils.removeAddressPrefix
 data class Signable(
     @SerializedName("addr")
     val addr: String? = null,
-//    @SerializedName("app")
-//    val app: App,
+    @SerializedName("app")
+    var app: App? = null,
     @SerializedName("args")
     val args: List<AsArgument>,
     @SerializedName("cadence")
@@ -23,22 +23,28 @@ data class Signable(
     @SerializedName("data")
     val data: Data? = null,
     @SerializedName("f_type")
-    val fType: String = "Signable",
+    var fType: String = "Signable",
     @SerializedName("f_vsn")
     val fVsn: String = "1.0.1",
     @SerializedName("interaction")
     val interaction: Interaction,
     @SerializedName("keyId")
-    val keyId: Int?,
+    val keyId: Int? = null,
     @SerializedName("message")
-    val message: String,
+    val message: String? = null,
     @SerializedName("roles")
     val roles: Roles,
-//    @SerializedName("service")
-//    val service: Any,
+    @SerializedName("service")
+    val service: Map<String, String> = mapOf(),
     @SerializedName("voucher")
     var voucher: Voucher? = null,
 ) {
+
+    enum class FType(val value: String) {
+        signable("Signable"),
+        preSignable("PreSignable")
+    }
+
 }
 
 data class App(
@@ -274,8 +280,10 @@ class PreSignable(
     val data: Map<String, String> = mapOf(),
     @SerializedName("interaction")
     val interaction: Interaction = Interaction(),
-//    @SerializedName("voucher")
-//    val voucher: Voucher,
+    @SerializedName("app")
+    val app: App? = null,
+    @SerializedName("voucher")
+    val voucher: Voucher? = null,
 )
 
 fun <T> Field<T>.toFclArgument(): Argument {
@@ -365,13 +373,16 @@ fun Interaction.isTransaction() = tag == Interaction.Tag.transaction.value
 
 fun Interaction.isScript() = tag == Interaction.Tag.script.value
 
-fun Interaction.buildPreSignable(roles: Roles): PreSignable {
-    return PreSignable(
+fun Interaction.buildPreSignable(roles: Roles): Signable {
+    return Signable(
+        fType = Signable.FType.preSignable.value,
         roles = roles,
         cadence = message.cadence.orEmpty(),
         args = arguments.values.map { it.asArgument },
         interaction = this,
-    )
+    ).apply {
+        voucher = generateVoucher()
+    }
 }
 
 fun Interaction.findInsideSigners(): List<String> {
@@ -389,6 +400,42 @@ fun Interaction.findOutsideSigners(): List<String> {
     return listOf(payer)
 }
 
+fun Signable.generateVoucher(): Voucher {
+    val insideSigners = interaction.findInsideSigners().mapNotNull { id ->
+        val account = interaction.accounts[id]
+        if (account == null) null else {
+            Singature(
+                address = account.addr?.removeAddressPrefix().orEmpty(),
+                keyId = account.keyId,
+                sig = account.signature,
+            )
+        }
+    }
+
+    val outsideSigners = interaction.findOutsideSigners().mapNotNull { id ->
+        val account = interaction.accounts[id]
+        if (account == null) null else {
+            Singature(
+                address = account.addr?.removeAddressPrefix().orEmpty(),
+                keyId = account.keyId,
+                sig = account.signature,
+            )
+        }
+    }
+
+    return Voucher(
+        cadence = interaction.message.cadence,
+        refBlock = interaction.message.refBlock,
+        computeLimit = interaction.message.computeLimit,
+        arguments = interaction.message.arguments.mapNotNull { interaction.arguments[it]?.asArgument },
+        proposalKey = interaction.createProposalKey(),
+        payer = interaction.accounts[interaction.payer.orEmpty()]?.addr?.removeAddressPrefix(),
+        authorizers = interaction.authorizations.mapNotNull { interaction.accounts[it]?.addr?.removeAddressPrefix() }.distinct(),
+        payloadSigs = insideSigners,
+        envelopeSigs = outsideSigners,
+    )
+}
+
 private fun randomId(length: Int = 10): String {
-    return (('a'..'z') + ('0'..'9')).toList().shuffled().take(length).joinToString { "" }
+    return (('a'..'z') + ('0'..'9')).toList().shuffled().take(length).joinToString("") { "$it" }
 }

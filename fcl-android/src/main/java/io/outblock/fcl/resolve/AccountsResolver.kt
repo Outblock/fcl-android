@@ -29,7 +29,7 @@ class AccountsResolver : Resolver {
         val preSignable = ix.buildPreSignable(Roles())
         val data = Gson().toJson(preSignable)
 
-        val response = retrofitAuthzApi(endpoint).executePost(service.params, data = data)
+        val response = retrofitAuthzApi().executePost(endpoint, service.params, data = data)
 
         val signableUsers = response.getAccounts()
         val accounts = mutableMapOf<String, SignableUser>()
@@ -90,7 +90,7 @@ class AccountsResolver : Resolver {
                 ) { data ->
                     val endpoint = service.endpoint ?: throw RuntimeException("endpoint is null")
                     val params = service.params ?: throw RuntimeException("params is null")
-                    retrofitAuthzApi(endpoint).executePost(params = params, data = data)
+                    retrofitAuthzApi().executePost(endpoint, params = params, data = data)
                 }
             }
         }

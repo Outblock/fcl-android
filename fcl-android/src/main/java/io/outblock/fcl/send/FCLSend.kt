@@ -69,7 +69,7 @@ class ScriptBuilder {
 
     fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(JsonCadenceBuilder()))
 
-    fun limit(limit: Int) {
+    fun gaslimit(limit: Int) {
         this.limit = limit
     }
 }

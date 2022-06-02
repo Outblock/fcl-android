@@ -85,6 +85,9 @@ class MainActivity : AppCompatActivity() {
             ioScope {
                 FCL.send {
                     script(editText.text.toString())
+                    arg { string("Test2") }
+                    arg { int(1) }
+                    gaslimit(1000)
                 }
             }
         }

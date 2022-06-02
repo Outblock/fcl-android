@@ -6,7 +6,6 @@ import com.nftco.flow.sdk.FlowSignature
 import com.nftco.flow.sdk.FlowTransaction
 import com.nftco.flow.sdk.bytesToHex
 import io.outblock.fcl.models.*
-import io.outblock.fcl.utils.removeAddressPrefix
 
 class SignatureResolver : Resolver {
 
@@ -80,39 +79,4 @@ class SignatureResolver : Resolver {
         return tx.canonicalPaymentEnvelope.bytesToHex()
     }
 
-    private fun Signable.generateVoucher(): Voucher {
-        val insideSigners = interaction.findInsideSigners().mapNotNull { id ->
-            val account = interaction.accounts[id]
-            if (account == null) null else {
-                Singature(
-                    address = account.addr?.removeAddressPrefix().orEmpty(),
-                    keyId = account.keyId,
-                    sig = account.signature,
-                )
-            }
-        }
-
-        val outsideSigners = interaction.findInsideSigners().mapNotNull { id ->
-            val account = interaction.accounts[id]
-            if (account == null) null else {
-                Singature(
-                    address = account.addr?.removeAddressPrefix().orEmpty(),
-                    keyId = account.keyId,
-                    sig = account.signature,
-                )
-            }
-        }
-
-        return Voucher(
-            cadence = interaction.message.cadence,
-            refBlock = interaction.message.refBlock,
-            computeLimit = interaction.message.computeLimit,
-            arguments = interaction.message.arguments.mapNotNull { interaction.arguments[it]?.asArgument },
-            proposalKey = interaction.createProposalKey(),
-            payer = interaction.accounts[interaction.payer.orEmpty()]?.addr?.removeAddressPrefix(),
-            authorizers = interaction.authorizations.mapNotNull { interaction.accounts[it]?.addr?.removeAddressPrefix() }.distinct(),
-            payloadSigs = insideSigners,
-            envelopeSigs = outsideSigners,
-        )
-    }
 }

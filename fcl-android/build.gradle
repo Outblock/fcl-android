@@ -42,7 +42,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
 
     /** FLOW **/
-    implementation "com.nftco:flow-jvm-sdk:0.6.0"
+    api "com.nftco:flow-jvm-sdk:0.6.0"
     implementation 'io.grpc:grpc-okhttp:1.44.0'
     /** FLOW **/
 
