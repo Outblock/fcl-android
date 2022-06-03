@@ -7,7 +7,6 @@ import io.outblock.fcl.models.response.PollingResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
@@ -29,7 +28,7 @@ internal interface RetrofitAuthnApi {
 internal interface RetrofitAuthzApi {
 
     @POST
-    suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf(), @Body data: String? = null): PollingResponse
+    suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf(), @Body data: Any? = null): PollingResponse
 }
 
 internal fun retrofitAuthnApi(url: String): RetrofitAuthnApi {
@@ -51,10 +50,12 @@ private fun okHttpClient(): OkHttpClient {
         addInterceptor(AuthzBodyInterceptor())
         addInterceptor(HttpLoggingInterceptor())
 
-        callTimeout(10, TimeUnit.SECONDS)
-        connectTimeout(10, TimeUnit.SECONDS)
-        readTimeout(10, TimeUnit.SECONDS)
-        writeTimeout(10, TimeUnit.SECONDS)
+//        protocols(Collections.singletonList(Protocol.HTTP_1_1))
+
+        callTimeout(20, TimeUnit.SECONDS)
+        connectTimeout(20, TimeUnit.SECONDS)
+        readTimeout(20, TimeUnit.SECONDS)
+        writeTimeout(20, TimeUnit.SECONDS)
 
         if (BuildConfig.DEBUG) {
             addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
@@ -68,11 +69,18 @@ private class AuthzBodyInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
 
-        if (request.method == "POST") {
-            request.body.string()?.addAuthzBody()?.let { body ->
-                request = request.newBuilder().post(body.toRequestBody()).build()
+        FCL.config.get("location")?.let {
+            if (request.url.queryParameter("l6n").isNullOrBlank()) {
+                val url = request.url.newBuilder().addQueryParameter("l6n", it).build()
+                request = request.newBuilder().url(url).build()
             }
         }
+
+//        if (request.method == "POST") {
+//            request.body.string()?.addAuthzBody()?.let { body ->
+//                request = request.newBuilder().post(body.toRequestBody()).build()
+//            }
+//        }
 
         return chain.proceed(request)
     }
@@ -83,6 +91,12 @@ private fun String.addAuthzBody(): String? {
         val signable = Gson().fromJson<MutableMap<String, Any>>(this, object : TypeToken<MutableMap<String, Any>>() {}.type)
         signable["app"] = FCL.config.configLens("^app\\.detail\\.")
         signable["service"] = FCL.config.configLens("^service\\.")
+
+        signable["client"] = mapOf(
+            "fclVersion" to FCL.version,
+            "fclLibrary" to "https://github.com/Outblock/fcl-android",
+            "hostname" to null,
+        )
 
         Gson().toJson(signable)
     } catch (e: Exception) {

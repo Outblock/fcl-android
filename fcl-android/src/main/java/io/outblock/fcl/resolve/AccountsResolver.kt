@@ -1,6 +1,5 @@
 package io.outblock.fcl.resolve
 
-import com.google.gson.Gson
 import io.outblock.fcl.FCL
 import io.outblock.fcl.models.*
 import io.outblock.fcl.models.response.FCLServiceType
@@ -27,9 +26,8 @@ class AccountsResolver : Resolver {
         val endpoint = service.endpoint ?: throw RuntimeException("missing preAuthz")
 
         val preSignable = ix.buildPreSignable(Roles())
-        val data = Gson().toJson(preSignable)
 
-        val response = retrofitAuthzApi().executePost(endpoint, service.params, data = data)
+        val response = retrofitAuthzApi().executePost(endpoint, service.params, data = preSignable)
 
         val signableUsers = response.getAccounts()
         val accounts = mutableMapOf<String, SignableUser>()

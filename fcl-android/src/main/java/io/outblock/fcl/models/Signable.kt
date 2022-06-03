@@ -155,7 +155,7 @@ data class SignableUser(
     @SerializedName("tempId")
     var tempId: String? = null,
 
-    var signingFunction: (suspend (data: String) -> PollingResponse)? = null,
+    var signingFunction: (suspend (data: Any) -> PollingResponse)? = null,
 )
 
 data class Argument(
@@ -234,7 +234,7 @@ data class Voucher(
     @SerializedName("cadence")
     val cadence: String?,
     @SerializedName("computeLimit")
-    val computeLimit: Int?,
+    val computeLimit: Int? = null,
     @SerializedName("payer")
     val payer: String?,
     @SerializedName("payloadSigs")

@@ -19,6 +19,8 @@ object FCL {
     var currentUser: User? = null
         private set
 
+    const val version = "@outblock/fcl-android@0.0.1"
+
     init {
         // TODO add from user
         providers.add(WalletProvider.DAPPER)

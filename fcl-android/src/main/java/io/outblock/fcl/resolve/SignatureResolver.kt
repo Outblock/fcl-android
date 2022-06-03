@@ -1,6 +1,5 @@
 package io.outblock.fcl.resolve
 
-import com.google.gson.Gson
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowSignature
 import com.nftco.flow.sdk.FlowTransaction
@@ -44,9 +43,8 @@ class SignatureResolver : Resolver {
         val acct = ix.accounts[id] ?: throw RuntimeException("Can't find account by id")
         val signingFunction = acct.signingFunction ?: throw RuntimeException()
         val signable = buildSignable(ix, payload, acct)
-        val data = Gson().toJson(signable)
 
-        val response = signingFunction.invoke(data)
+        val response = signingFunction.invoke(signable)
 
         return Pair(id, response.data?.signature ?: response.compositeSignature?.signature.orEmpty())
     }

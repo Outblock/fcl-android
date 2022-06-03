@@ -19,16 +19,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        FCL.config(
-            appName = "Test",
-            appIcon = "https://lilico.app/logo.svg",
-            location = "https://lilico.app",
-            walletNode = "https://fcl-http-post.vercel.app/api",
-            accessNode = "https://access-testnet.onflow.org",
-            env = "mainnet",
-            scope = "email",
-            authn = WalletProvider.BLOCTO.endpoint.toString(),
-        )
+        kotlin.runCatching {
+            FCL.config(
+                appName = "Test",
+                appIcon = "https://lilico.app/logo.svg",
+                location = "https://lilico.app",
+                walletNode = "https://fcl-http-post.vercel.app/api",
+                accessNode = "https://access-testnet.onflow.org",
+                env = "mainnet",
+                scope = "email",
+                authn = WalletProvider.BLOCTO.endpoint.toString(),
+            )
+        }
         setupAuth()
         setupSendTransaction()
     }
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                     log(testInt)
                }
            }
-        """.trimIndent()
+        """
         )
 
         button.setOnClickListener {
