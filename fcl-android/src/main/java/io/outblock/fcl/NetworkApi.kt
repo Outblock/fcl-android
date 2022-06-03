@@ -4,6 +4,13 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.outblock.fcl.models.response.PollingResponse
+import io.outblock.fcl.models.response.ResponseStatus
+import io.outblock.fcl.models.response.Service
+import io.outblock.fcl.utils.FCLError
+import io.outblock.fcl.utils.FCLException
+import io.outblock.fcl.utils.repeatWhen
+import io.outblock.fcl.utils.runBlockDelay
+import io.outblock.fcl.webview.openAuthenticationWebView
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -23,26 +30,86 @@ internal interface RetrofitAuthnApi {
 
     @POST("authn")
     suspend fun requestAuthentication(): PollingResponse
-}
-
-internal interface RetrofitAuthzApi {
 
     @POST
     suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf(), @Body data: Any? = null): PollingResponse
+
+    @GET
+    suspend fun executeGet(@Url url: String, @QueryMap params: Map<String, String>? = mapOf()): PollingResponse
 }
 
-internal fun retrofitAuthnApi(url: String): RetrofitAuthnApi {
+internal fun retrofitAuthnApi(url: String? = null): RetrofitAuthnApi {
     val client = okHttpClient()
 
-    return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create())).baseUrl(url)
+    return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+        .baseUrl(url ?: "https://google.com")
         .client(client).build().create(RetrofitAuthnApi::class.java)
 }
 
-internal fun retrofitAuthzApi(): RetrofitAuthzApi {
-    val client = okHttpClient()
 
-    return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create())).baseUrl("https://google.com")
-        .client(client).build().create(RetrofitAuthzApi::class.java)
+private var canContinue = false
+
+suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
+    val response = retrofitAuthnApi().executePost(url, params, data)
+
+    when (response.status) {
+        ResponseStatus.APPROVED -> {
+            // TODO dismiss webview
+        }
+        ResponseStatus.DECLINED -> {
+            // TODO dismiss webview
+            throw FCLException(FCLError.declined)
+        }
+        ResponseStatus.PENDING -> return tryPollService(response)
+    }
+
+    return response
+}
+
+private suspend fun tryPollService(
+    response: PollingResponse,
+): PollingResponse {
+    canContinue = true
+    val local = response.local ?: throw FCLException(FCLError.generic)
+    val updates = (response.updates ?: response.authorizationUpdates) ?: throw FCLException(FCLError.generic)
+
+    try {
+        local.openAuthenticationWebView()
+    } catch (e: Exception) {
+        throw FCLException(FCLError.generic, exception = e)
+    }
+
+
+    var pollResponse: PollingResponse? = null
+    repeatWhen(predicate = { (pollResponse?.isPending() ?: true) }) {
+        runBlockDelay(1000) {
+            pollResponse = poll(updates)
+        }
+    }
+
+    return pollResponse ?: response
+}
+
+private suspend fun poll(service: Service): PollingResponse? {
+    if (!canContinue) {
+        throw FCLException(FCLError.declined)
+    }
+
+    val url = service.endpoint ?: throw FCLException(FCLError.invaildURL)
+
+    val response = retrofitAuthnApi().executeGet(url, service.params)
+
+    when (response.status) {
+        ResponseStatus.APPROVED -> {
+            // TODO dismiss webview
+        }
+        ResponseStatus.DECLINED -> {
+            // TODO dismiss webview
+            throw FCLException(FCLError.declined)
+        }
+        else -> return response
+    }
+    return response
 }
 
 private fun okHttpClient(): OkHttpClient {

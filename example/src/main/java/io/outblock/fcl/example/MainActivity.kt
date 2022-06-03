@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                     log(testInt)
                }
            }
-        """
+        """.trimIndent()
         )
 
         button.setOnClickListener {
