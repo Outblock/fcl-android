@@ -9,7 +9,7 @@ import io.outblock.fcl.models.*
 class SignatureResolver : Resolver {
 
     override suspend fun resolve(ix: Interaction) {
-        assert(ix.tag != Interaction.Tag.transaction.value) { "Interaction tag error" }
+        assert(ix.tag.lowercase() != Interaction.Tag.transaction.value) { "Interaction tag error" }
 
         val insideSigners = ix.findInsideSigners()
 

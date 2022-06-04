@@ -12,14 +12,10 @@ import io.outblock.fcl.utils.removeAddressPrefix
 data class Signable(
     @SerializedName("addr")
     val addr: String? = null,
-    @SerializedName("app")
-    var app: App? = null,
     @SerializedName("args")
     val args: List<AsArgument>,
     @SerializedName("cadence")
     val cadence: String? = null,
-    @SerializedName("client")
-    val client: Client? = null,
     @SerializedName("data")
     val data: Data? = null,
     @SerializedName("f_type")
@@ -34,10 +30,14 @@ data class Signable(
     val message: String? = null,
     @SerializedName("roles")
     val roles: Roles,
-    @SerializedName("service")
-    val service: Map<String, String> = mapOf(),
     @SerializedName("voucher")
     var voucher: Voucher? = null,
+    @SerializedName("app")
+    var app: App? = null,
+    @SerializedName("client")
+    val client: Client? = null,
+    @SerializedName("service")
+    val service: Map<String, String> = mapOf(),
 ) {
 
     enum class FType(val value: String) {

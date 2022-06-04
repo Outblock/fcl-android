@@ -3,6 +3,7 @@ package io.outblock.fcl
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus
 import io.outblock.fcl.models.response.Service
@@ -142,6 +143,12 @@ private class AuthzBodyInterceptor : Interceptor {
                 request = request.newBuilder().url(url).build()
             }
         }
+
+        request = request.newBuilder().apply {
+            FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
+            addHeader("application/json", "Content-Type")
+            addHeader("application/json", "Accept")
+        }.build()
 
 //        if (request.method == "POST") {
 //            request.body.string()?.addAuthzBody()?.let { body ->
