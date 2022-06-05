@@ -302,7 +302,7 @@ fun Interaction.toFlowTransaction(): FlowTransaction {
     val payerAccount = payer
     val payerAddress = accounts[payerAccount]?.addr ?: throw RuntimeException("missing payer")
 
-    val tx = FlowTransaction(
+    var tx = FlowTransaction(
         script = FlowScript(message.cadence.orEmpty()),
         arguments = message.arguments.mapNotNull { arguments[it]?.asArgument }.mapNotNull { createFlowField(it.type, it.value) }
             .map { FlowArgument(it) },
@@ -319,7 +319,7 @@ fun Interaction.toFlowTransaction(): FlowTransaction {
             val keyId = it.keyId
             val signature = it.signature
 
-            tx.addPayloadSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
+            tx = tx.addPayloadSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
         }
     }
 
@@ -329,7 +329,7 @@ fun Interaction.toFlowTransaction(): FlowTransaction {
             val keyId = it.keyId
             val signature = it.signature
 
-            tx.addEnvelopeSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
+            tx = tx.addEnvelopeSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
         }
     }
     return tx

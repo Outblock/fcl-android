@@ -14,6 +14,7 @@ import io.outblock.fcl.FCL
 import io.outblock.fcl.provider.WalletProvider
 import io.outblock.fcl.send.send
 import io.outblock.fcl.utils.ioScope
+import io.outblock.fcl.utils.logd
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
         setupAuth()
         setupSendTransaction()
+        logd("xxx", "${byteArrayOf(1, 2) + byteArrayOf(5, 6)}")
     }
 
     private fun setupAuth() {
