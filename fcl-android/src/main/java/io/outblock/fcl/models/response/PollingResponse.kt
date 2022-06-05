@@ -1,6 +1,8 @@
 package io.outblock.fcl.models.response
 
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 
 data class PollingResponse(
     @SerializedName("status")
@@ -10,12 +12,12 @@ data class PollingResponse(
     @SerializedName("updates")
     val updates: Service?,
     @SerializedName("local")
-    val local: Service?,
+    val local: Any?,
     @SerializedName("reason")
     val reason: String?,
-    @SerializedName("composite_signature")
+    @SerializedName("compositeSignature")
     val compositeSignature: PollingData?,
-    @SerializedName("authorization_updates")
+    @SerializedName("authorizationUpdates")
     var authorizationUpdates: Service?,
 ) {
     fun isPending(): Boolean {
@@ -28,6 +30,21 @@ data class PollingResponse(
 
     fun isDeclined(): Boolean {
         return status == ResponseStatus.DECLINED
+    }
+
+    fun local(): Service? {
+        local ?: return null
+        val json = Gson().toJson(local)
+
+        return try {
+            if (local is ArrayList<*>) {
+                Gson().fromJson<List<Service>>(json, object : TypeToken<List<Service>>() {}.type).first()
+            } else {
+                Gson().fromJson(json, Service::class.java)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 
@@ -71,6 +88,19 @@ data class Service(
     val identity: Identity?,
     @SerializedName("provider")
     val provider: Provider?,
+)
+
+data class LocalService(
+    @SerializedName("method")
+    var method: String? = null,
+    @SerializedName("endpoint")
+    var endpoint: String? = null,
+    @SerializedName("height")
+    var height: String? = null,
+    @SerializedName("width")
+    var width: String? = null,
+    @SerializedName("background")
+    var background: String? = null
 )
 
 enum class FCLServiceType(val value: String) {

@@ -1,7 +1,6 @@
 package io.outblock.fcl.authn
 
 import android.content.Context
-import androidx.browser.customtabs.CustomTabsIntent
 import io.outblock.fcl.FCL
 import io.outblock.fcl.RetrofitAuthnApi
 import io.outblock.fcl.config.Config
@@ -9,6 +8,7 @@ import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.retrofitAuthnApi
 import io.outblock.fcl.utils.*
+import io.outblock.fcl.webview.WebViewActivity
 import kotlinx.coroutines.withTimeout
 
 internal class FCLAuthn {
@@ -22,7 +22,7 @@ internal class FCLAuthn {
                 val client = retrofitAuthnApi(FCL.providers.get(provider).endpoint.toString())
 
                 val auth = client.requestAuthentication()
-                val service = auth.local ?: throw Exception("not provided login iframe")
+                val service = auth.local() ?: throw Exception("not provided login iframe")
 
                 this.openLoginTab(context, service.endpoint.orEmpty(), service.params.orEmpty())
 
@@ -68,8 +68,7 @@ internal class FCLAuthn {
     ) {
         val uri = makeServiceUrl(url, params, FCL.config.get(Config.KEY.Location).orEmpty())
 
-        val tabIntent = CustomTabsIntent.Builder().build()
-        tabIntent.launchUrl(context, uri)
+        WebViewActivity.launchUrl(context, uri.toString())
     }
 
     companion object {

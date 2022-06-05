@@ -11,6 +11,9 @@ import io.outblock.fcl.utils.FCLError
 import io.outblock.fcl.utils.FCLException
 import io.outblock.fcl.utils.repeatWhen
 import io.outblock.fcl.utils.runBlockDelay
+import io.outblock.fcl.webview.FCLWebViewLifecycle
+import io.outblock.fcl.webview.WebViewActivity
+import io.outblock.fcl.webview.WebViewLifecycleObserver
 import io.outblock.fcl.webview.openAuthenticationWebView
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -48,17 +51,39 @@ internal fun retrofitAuthnApi(url: String? = null): RetrofitAuthnApi {
 }
 
 
-private var canContinue = false
+private object PollServiceState {
+    private var canContinue = false
+
+    init {
+        FCLWebViewLifecycle.addWebViewLifecycleObserver(object : WebViewLifecycleObserver {
+            override fun onWebViewClose(url: String?) {
+                canContinue = false
+            }
+
+            override fun onWebViewOpen(url: String?) {
+            }
+        })
+    }
+
+    fun poll() {
+        canContinue = true
+    }
+
+    fun stopPoll() {
+        canContinue = false
+    }
+
+    fun isPollEnable() = canContinue
+}
+
 
 suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
     val response = retrofitAuthnApi().executePost(url, params, data)
 
     when (response.status) {
-        ResponseStatus.APPROVED -> {
-            // TODO dismiss webview
-        }
+        ResponseStatus.APPROVED -> WebViewActivity.close()
         ResponseStatus.DECLINED -> {
-            // TODO dismiss webview
+            WebViewActivity.close()
             throw FCLException(FCLError.declined)
         }
         ResponseStatus.PENDING -> return tryPollService(response)
@@ -70,8 +95,8 @@ suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), da
 private suspend fun tryPollService(
     response: PollingResponse,
 ): PollingResponse {
-    canContinue = true
-    val local = response.local ?: throw FCLException(FCLError.generic)
+    PollServiceState.poll()
+    val local = response.local() ?: throw FCLException(FCLError.generic)
     val updates = (response.updates ?: response.authorizationUpdates) ?: throw FCLException(FCLError.generic)
 
     try {
@@ -91,8 +116,8 @@ private suspend fun tryPollService(
     return pollResponse ?: response
 }
 
-private suspend fun poll(service: Service): PollingResponse? {
-    if (!canContinue) {
+private suspend fun poll(service: Service): PollingResponse {
+    if (!PollServiceState.isPollEnable()) {
         throw FCLException(FCLError.declined)
     }
 
@@ -101,11 +126,9 @@ private suspend fun poll(service: Service): PollingResponse? {
     val response = retrofitAuthnApi().executeGet(url, service.params)
 
     when (response.status) {
-        ResponseStatus.APPROVED -> {
-            // TODO dismiss webview
-        }
+        ResponseStatus.APPROVED -> WebViewActivity.close()
         ResponseStatus.DECLINED -> {
-            // TODO dismiss webview
+            WebViewActivity.close()
             throw FCLException(FCLError.declined)
         }
         else -> return response
@@ -117,8 +140,6 @@ private fun okHttpClient(): OkHttpClient {
     val client = OkHttpClient.Builder().apply {
         addInterceptor(AuthzBodyInterceptor())
         addInterceptor(HttpLoggingInterceptor())
-
-//        protocols(Collections.singletonList(Protocol.HTTP_1_1))
 
         callTimeout(20, TimeUnit.SECONDS)
         connectTimeout(20, TimeUnit.SECONDS)

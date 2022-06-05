@@ -1,10 +1,17 @@
 package io.outblock.fcl.utils
 
+import io.outblock.fcl.BuildConfig
+
 class FCLException(
     private val error: FCLError,
     private val exception: Exception? = null,
 ) : Exception(error.value) {
 
+    init {
+        if (BuildConfig.DEBUG) {
+            printStackTrace()
+        }
+    }
 
 }
 
@@ -23,4 +30,5 @@ enum class FCLError(val value: String) {
     convertToTxFailure("convertToTxFailure"),
     invaildProposer("invaildProposer"),
     fetchAccountFailure("fetchAccountFailure"),
+    invaildContext("invaildContext"),
 }

@@ -21,9 +21,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         kotlin.runCatching {
             FCL.config(
-                appName = "Test",
-                appIcon = "https://lilico.app/logo.svg",
-                location = "https://lilico.app",
+                appName = "FCLDemo",
+                appIcon = "https://placekitten.com/g/200/200",
+                location = "https://foo.com",
                 walletNode = "https://fcl-http-post.vercel.app/api",
                 accessNode = "https://access-testnet.onflow.org",
                 env = "mainnet",
