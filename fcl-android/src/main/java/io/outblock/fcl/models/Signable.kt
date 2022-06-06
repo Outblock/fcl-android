@@ -309,7 +309,7 @@ fun Interaction.toFlowTransaction(): FlowTransaction {
         referenceBlockId = FlowId(message.refBlock.orEmpty()),
         gasLimit = (message.computeLimit ?: 100).toLong(),
         proposalKey = proposalKey,
-        payerAddress = FlowAddress(payerAddress.orEmpty()),
+        payerAddress = FlowAddress(payerAddress),
         authorizers = authorizations.mapNotNull { accounts[it]?.addr }.distinct().map { FlowAddress(it) }
     )
 

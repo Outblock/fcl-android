@@ -36,7 +36,10 @@ internal class WebViewActivity : AppCompatActivity() {
 
         fun close() {
             instance?.finish()
+            instance = null
         }
+
+        fun isOpening() = instance != null
 
         fun launchUrl(context: Context, url: String) {
             context.startActivity(Intent(context, WebViewActivity::class.java).apply {

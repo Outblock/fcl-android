@@ -9,6 +9,7 @@ import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.retrofitAuthnApi
 import io.outblock.fcl.utils.*
 import io.outblock.fcl.webview.WebViewActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 
 internal class FCLAuthn {
@@ -25,6 +26,8 @@ internal class FCLAuthn {
                 val service = auth.local() ?: throw Exception("not provided login iframe")
 
                 this.openLoginTab(context, service.endpoint.orEmpty(), service.params.orEmpty())
+
+                delay(300)
 
                 client.getAuthenticationResult(auth) { onComplete(it) }
             }
@@ -50,7 +53,7 @@ internal class FCLAuthn {
 
             var response: PollingResponse? = null
             withTimeout(secondsTimeout * 1000) {
-                repeatWhen(predicate = { (response?.isPending() ?: true) }) {
+                repeatWhen(predicate = { (response?.isPending() ?: true) && WebViewActivity.isOpening() }) {
                     runBlockDelay(1000) {
                         response = getAuthentication(uri.toString())
                         logd(TAG, "getAuthenticationResult: $response")
