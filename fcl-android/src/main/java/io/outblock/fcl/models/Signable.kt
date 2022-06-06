@@ -32,12 +32,6 @@ data class Signable(
     val roles: Roles,
     @SerializedName("voucher")
     var voucher: Voucher? = null,
-    @SerializedName("app")
-    var app: App? = null,
-    @SerializedName("client")
-    val client: Client? = null,
-    @SerializedName("service")
-    val service: Map<String, String> = mapOf(),
 ) {
 
     enum class FType(val value: String) {

@@ -2,7 +2,6 @@ package io.outblock.fcl
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus
@@ -18,6 +17,7 @@ import io.outblock.fcl.webview.openAuthenticationWebView
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
@@ -171,11 +171,11 @@ private class AuthzBodyInterceptor : Interceptor {
             addHeader("application/json", "Accept")
         }.build()
 
-//        if (request.method == "POST") {
-//            request.body.string()?.addAuthzBody()?.let { body ->
-//                request = request.newBuilder().post(body.toRequestBody()).build()
-//            }
-//        }
+        if (request.method == "POST") {
+            request.body.string()?.addAuthzBody()?.let { body ->
+                request = request.newBuilder().post(body.toRequestBody()).build()
+            }
+        }
 
         return chain.proceed(request)
     }
@@ -183,17 +183,23 @@ private class AuthzBodyInterceptor : Interceptor {
 
 private fun String.addAuthzBody(): String? {
     return try {
-        val signable = Gson().fromJson<MutableMap<String, Any>>(this, object : TypeToken<MutableMap<String, Any>>() {}.type)
-        signable["app"] = FCL.config.configLens("^app\\.detail\\.")
-        signable["service"] = FCL.config.configLens("^service\\.")
-
-        signable["client"] = mapOf(
-            "fclVersion" to FCL.version,
-            "fclLibrary" to "https://github.com/Outblock/fcl-android",
-            "hostname" to null,
-        )
-
-        Gson().toJson(signable)
+        var json = this
+        if (json.endsWith("}")) {
+            json = json.removeSuffix("}")
+            json = "$json,\"app\":${Gson().toJson(FCL.config.configLens("^app.detail."))}"
+//            json = "$json,\"service\":${Gson().toJson(FCL.config.configLens("^service."))}"
+            json = "$json,\"client\":${
+                Gson().toJson(
+                    mapOf(
+                        "fclVersion" to FCL.version,
+                        "fclLibrary" to "https://github.com/Outblock/fcl-android",
+                        "hostname" to null,
+                    )
+                )
+            }"
+            json = "$json}"
+        }
+        return json
     } catch (e: Exception) {
         null
     }

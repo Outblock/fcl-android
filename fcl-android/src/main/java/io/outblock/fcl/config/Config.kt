@@ -2,6 +2,7 @@ package io.outblock.fcl.config
 
 import com.nftco.flow.sdk.FlowChainId
 import io.outblock.fcl.FlowApi
+import java.util.regex.Pattern
 
 class Config {
 
@@ -22,8 +23,8 @@ class Config {
     }
 
     fun configLens(regex: String): Map<String, String> {
-        val r = Regex(regex)
-        return map.filter { it.key.matches(r) }.mapKeys { it.key.replace(r, "") }
+        val r = Pattern.compile(regex)
+        return map.filter { r.matcher(it.key).find() }.mapKeys { it.key.replace(Regex(regex), "") }
     }
 
     fun get(key: KEY): String? = map[key.value]
