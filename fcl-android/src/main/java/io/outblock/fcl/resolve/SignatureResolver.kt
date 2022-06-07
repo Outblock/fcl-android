@@ -72,7 +72,7 @@ class SignatureResolver : Resolver {
             }
         }
         // TODO not sure canonicalPaymentEnvelope is ok
-        return (DomainTag.TRANSACTION_DOMAIN_TAG + innerTx.canonicalPaymentEnvelope).bytesToHex()
+        return (DomainTag.TRANSACTION_DOMAIN_TAG + innerTx.canonicalAuthorizationEnvelope).bytesToHex()
     }
 
 }

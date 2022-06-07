@@ -188,7 +188,7 @@ private fun String.addAuthzBody(): String? {
         if (json.endsWith("}")) {
             json = json.removeSuffix("}")
             json = "$json,\"app\":${Gson().toJson(FCL.config.configLens("^app.detail."))}"
-//            json = "$json,\"service\":${Gson().toJson(FCL.config.configLens("^service."))}"
+            json = "$json,\"service\":${Gson().toJson(FCL.config.configLens("^service."))}"
             json = "$json,\"client\":${
                 Gson().toJson(
                     mapOf(
