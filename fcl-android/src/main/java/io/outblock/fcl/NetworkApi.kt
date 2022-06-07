@@ -166,8 +166,8 @@ private class AuthzBodyInterceptor : Interceptor {
 
         request = request.newBuilder().apply {
             FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
-            addHeader("application/json", "Content-Type")
-            addHeader("application/json", "Accept")
+            addHeader("Content-Type", "application/json")
+            addHeader("Accept", "application/json")
         }.build()
 
         if (request.method == "POST") {
@@ -190,8 +190,10 @@ private fun String.addAuthzBody(): String? {
             json = "$json,\"client\":${
                 Gson().toJson(
                     mapOf(
-                        "fclVersion" to FCL.version,
-                        "fclLibrary" to "https://github.com/Outblock/fcl-android",
+//                        "fclVersion" to FCL.version,
+//                        "fclLibrary" to "https://github.com/Outblock/fcl-android",
+                        "fclVersion" to "@outblock/fcl-swift@0.0.3",
+                        "fclLibrary" to "https://github.com/Outblock/fcl-swift",
                         "hostname" to null,
                     )
                 )

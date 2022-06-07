@@ -41,7 +41,8 @@ class MainActivity : AppCompatActivity() {
 
         with(tabLayout) {
             addTab(newTab().apply { text = "Dapper" })
-            addTab(newTab().apply { text = "Blocto" })
+            val blocto = newTab().apply { text = "Blocto" }
+            addTab(blocto)
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                 }
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onTabReselected(tab: TabLayout.Tab?) {
                 }
             })
+            selectTab(blocto)
         }
 
         findViewById<View>(R.id.auth_button).setOnClickListener {

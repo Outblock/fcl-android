@@ -1,6 +1,8 @@
 package io.outblock.fcl.webview
 
 import android.net.Uri
+import io.outblock.fcl.FCL
+import io.outblock.fcl.config.Config
 import io.outblock.fcl.lifecycle.LifecycleObserver
 import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.utils.FCLError
@@ -13,6 +15,7 @@ fun Service.openAuthenticationWebView() {
 
     val uri = Uri.parse(url).buildUpon().apply {
         params?.forEach { appendQueryParameter(it.key, it.value) }
+        appendQueryParameter("l6n", FCL.config.get(Config.KEY.Location))
     }.build()
     WebViewActivity.launchUrl(context, uri.toString())
 }
