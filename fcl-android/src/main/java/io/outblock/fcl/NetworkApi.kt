@@ -29,28 +29,42 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
-internal interface RetrofitAuthnApi {
-    @GET
-    suspend fun getAuthentication(@Url url: String): PollingResponse
+suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
+    val response = if (data == null) {
+        retrofitAuthApi().executePost(url, params)
+    } else retrofitAuthApi().executePost(url, params, data)
 
-    @POST("authn")
-    suspend fun requestAuthentication(): PollingResponse
+    when (response.status) {
+        ResponseStatus.APPROVED -> WebViewActivity.close()
+        ResponseStatus.DECLINED -> {
+            WebViewActivity.close()
+            throw FCLException(FCLError.declined)
+        }
+        ResponseStatus.PENDING -> return tryPollService(response)
+    }
+
+    return response
+}
+
+private interface RetrofitAuthApi {
 
     @POST
-    suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf(), @Body data: Any? = null): PollingResponse
+    suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf(), @Body data: Any): PollingResponse
+
+    @POST
+    suspend fun executePost(@Url url: String, @QueryMap params: Map<String, String>? = mapOf()): PollingResponse
 
     @GET
     suspend fun executeGet(@Url url: String, @QueryMap params: Map<String, String>? = mapOf()): PollingResponse
 }
 
-internal fun retrofitAuthnApi(url: String? = null): RetrofitAuthnApi {
+private fun retrofitAuthApi(url: String? = null): RetrofitAuthApi {
     val client = okHttpClient()
 
     return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
         .baseUrl(url ?: "https://google.com")
-        .client(client).build().create(RetrofitAuthnApi::class.java)
+        .client(client).build().create(RetrofitAuthApi::class.java)
 }
-
 
 private object PollServiceState {
     private var canContinue = false
@@ -75,22 +89,6 @@ private object PollServiceState {
     }
 
     fun isPollEnable() = canContinue
-}
-
-
-suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
-    val response = retrofitAuthnApi().executePost(url, params, data)
-
-    when (response.status) {
-        ResponseStatus.APPROVED -> WebViewActivity.close()
-        ResponseStatus.DECLINED -> {
-            WebViewActivity.close()
-            throw FCLException(FCLError.declined)
-        }
-        ResponseStatus.PENDING -> return tryPollService(response)
-    }
-
-    return response
 }
 
 private suspend fun tryPollService(
@@ -124,7 +122,7 @@ private suspend fun poll(service: Service): PollingResponse {
 
     val url = service.endpoint ?: throw FCLException(FCLError.invaildURL)
 
-    val response = retrofitAuthnApi().executeGet(url, service.params)
+    val response = retrofitAuthApi().executeGet(url, service.params)
 
     when (response.status) {
         ResponseStatus.APPROVED -> WebViewActivity.close()

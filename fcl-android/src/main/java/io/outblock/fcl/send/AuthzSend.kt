@@ -4,44 +4,45 @@ import androidx.annotation.WorkerThread
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import io.outblock.fcl.FCL
 import io.outblock.fcl.FlowApi
 import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
 import io.outblock.fcl.resolve.*
 
-@WorkerThread
-suspend fun FCL.send(builder: ScriptBuilder.() -> Unit): String {
-    val ix = prepare(ScriptBuilder().apply { builder(this) })
-    listOf(
-        CadenceResolver(),
-        AccountsResolver(),
-        RefBlockResolver(),
-        SequenceNumberResolver(),
-        SignatureResolver(),
-    ).forEach { it.resolve(ix) }
+internal class AuthzSend {
+    @WorkerThread
+    suspend fun send(builder: ScriptBuilder.() -> Unit): String {
+        val ix = prepare(ScriptBuilder().apply { builder(this) })
+        listOf(
+            CadenceResolver(),
+            AccountsResolver(),
+            RefBlockResolver(),
+            SequenceNumberResolver(),
+            SignatureResolver(),
+        ).forEach { it.resolve(ix) }
 
-    val id = sendIX(ix)
-    return id.base16Value
-}
-
-private fun prepare(builder: ScriptBuilder): Interaction {
-    return Interaction().apply {
-        builder.script?.let {
-            tag = Interaction.Tag.transaction.value
-            message.cadence = it
-        }
-        builder.arguments.map { it.toFclArgument() }.apply {
-            message.arguments = map { it.tempId }
-            arguments = associate { it.tempId to it }
-        }
-        builder.limit?.let { message.computeLimit = it }
+        val id = sendIX(ix)
+        return id.base16Value
     }
-}
 
-private fun sendIX(ix: Interaction): FlowId {
-    return FlowApi.get().sendTransaction(ix.toFlowTransaction())
+    private fun prepare(builder: ScriptBuilder): Interaction {
+        return Interaction().apply {
+            builder.script?.let {
+                tag = Interaction.Tag.transaction.value
+                message.cadence = it
+            }
+            builder.arguments.map { it.toFclArgument() }.apply {
+                message.arguments = map { it.tempId }
+                arguments = associate { it.tempId to it }
+            }
+            builder.limit?.let { message.computeLimit = it }
+        }
+    }
+
+    private fun sendIX(ix: Interaction): FlowId {
+        return FlowApi.get().sendTransaction(ix.toFlowTransaction())
+    }
 }
 
 class ScriptBuilder {

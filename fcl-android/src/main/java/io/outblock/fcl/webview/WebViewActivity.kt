@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import io.outblock.fcl.utils.logd
 
 internal class WebViewActivity : AppCompatActivity() {
 
@@ -48,6 +49,7 @@ internal class WebViewActivity : AppCompatActivity() {
                 }
                 putExtra(EXTRA_URL, url)
             })
+            logd("launchUrl", "url:$url")
         }
     }
 }

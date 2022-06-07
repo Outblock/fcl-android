@@ -1,7 +1,6 @@
 package io.outblock.fcl.example
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,9 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.FCL
 import io.outblock.fcl.provider.WalletProvider
-import io.outblock.fcl.send.send
 import io.outblock.fcl.utils.ioScope
 import io.outblock.fcl.utils.logd
+import io.outblock.fcl.utils.uiScope
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,11 +56,13 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.auth_button).setOnClickListener {
             val provider = if (tabLayout.selectedTabPosition == 0) WalletProvider.DAPPER else WalletProvider.BLOCTO
-            FCL.authenticate(this, provider) {
-                Log.d(TAG, "authenticate complete:$it")
-                Toast.makeText(this, "authenticate complete", Toast.LENGTH_SHORT).show()
-                findViewById<TextView>(R.id.address).text = it.address
-                startActivity(Intent(this, MainActivity::class.java))
+            ioScope {
+                val auth = FCL.authenticate(provider)
+                Log.d(TAG, "authenticate complete:$auth")
+                uiScope {
+                    Toast.makeText(this, "authenticate complete", Toast.LENGTH_SHORT).show()
+                    findViewById<TextView>(R.id.address).text = auth.address
+                }
             }
         }
     }

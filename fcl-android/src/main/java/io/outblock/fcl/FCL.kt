@@ -1,8 +1,7 @@
 package io.outblock.fcl
 
-import android.content.Context
+import androidx.annotation.WorkerThread
 import com.nftco.flow.sdk.FlowAddress
-import io.outblock.fcl.authn.FCLAuthn
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.AuthnResponse
 import io.outblock.fcl.models.response.PollingResponse
@@ -10,6 +9,10 @@ import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.provider.Providers
 import io.outblock.fcl.provider.WalletProvider
+import io.outblock.fcl.send.AuthnSend
+import io.outblock.fcl.send.AuthzSend
+import io.outblock.fcl.send.ScriptBuilder
+import kotlinx.coroutines.runBlocking
 
 object FCL {
     val providers = Providers()
@@ -57,15 +60,17 @@ object FCL {
      * @param [provider] provider used for authentication
      * @param [onComplete] callback function called on completion with response data
      */
-    fun authenticate(
-        context: Context,
-        provider: Provider,
-        onComplete: (AuthnResponse) -> Unit,
-    ) {
-        FCLAuthn().authenticate(context, provider) { resp ->
-            onComplete.invoke(AuthnResponse(resp.data?.addr, resp.status, resp.reason))
-            currentUser = User.fromAuthn(resp)
-        }
+    @WorkerThread
+    fun authenticate(provider: Provider): AuthnResponse {
+        val resp = AuthnSend().authenticate(provider)
+        currentUser = User.fromAuthn(resp)
+        return AuthnResponse(resp.data?.addr, resp.status, resp.reason)
+    }
+
+    @WorkerThread
+    fun send(builder: ScriptBuilder.() -> Unit): String {
+        val tid = runBlocking { AuthzSend().send(builder) }
+        return tid
     }
 
     fun unauthenticate() {
