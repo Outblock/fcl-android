@@ -29,7 +29,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
-suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
+internal suspend fun execHttpPost(url: String, params: Map<String, String>? = mapOf(), data: Any? = null): PollingResponse {
     val response = if (data == null) {
         retrofitAuthApi().executePost(url, params)
     } else retrofitAuthApi().executePost(url, params, data)
@@ -168,6 +168,9 @@ private class AuthzBodyInterceptor : Interceptor {
             FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
             addHeader("Content-Type", "application/json")
             addHeader("Accept", "application/json")
+            if (BuildConfig.DEBUG) {
+                addHeader("Accept-Encoding", "identity")
+            }
         }.build()
 
         if (request.method == "POST") {

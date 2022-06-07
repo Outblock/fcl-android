@@ -17,7 +17,7 @@ data class Signable(
     @SerializedName("cadence")
     val cadence: String? = null,
     @SerializedName("data")
-    val data: Data? = null,
+    val data: Map<String, String>? = mapOf(),
     @SerializedName("f_type")
     var fType: String = "Signable",
     @SerializedName("f_vsn")
@@ -56,8 +56,6 @@ data class Client(
     @SerializedName("hostname")
     val hostname: Any
 )
-
-class Data
 
 data class Interaction(
     @SerializedName("account")
@@ -149,6 +147,7 @@ data class SignableUser(
     @SerializedName("tempId")
     var tempId: String? = null,
 
+    @Transient
     var signingFunction: (suspend (data: Any) -> PollingResponse)? = null,
 )
 
