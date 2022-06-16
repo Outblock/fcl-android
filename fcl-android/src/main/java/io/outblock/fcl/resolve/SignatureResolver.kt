@@ -1,6 +1,7 @@
 package io.outblock.fcl.resolve
 
-import com.nftco.flow.sdk.*
+import com.nftco.flow.sdk.DomainTag
+import com.nftco.flow.sdk.bytesToHex
 import io.outblock.fcl.models.*
 
 class SignatureResolver : Resolver {
@@ -25,7 +26,7 @@ class SignatureResolver : Resolver {
         }
 
         val outsideSigners = ix.findOutsideSigners()
-        val outsidePayload = encodeOutsideMessage(tx, ix, insideSigners)
+        val outsidePayload = (DomainTag.TRANSACTION_DOMAIN_TAG + tx.canonicalAuthorizationEnvelope).bytesToHex()
 
         val outPublishers = outsideSigners.map { fetchSignature(ix, outsidePayload, it) }
 
@@ -59,20 +60,4 @@ class SignatureResolver : Resolver {
             voucher = generateVoucher()
         }
     }
-
-    private fun encodeOutsideMessage(tx: FlowTransaction, ix: Interaction, insideSigners: List<String>): String {
-        var innerTx = tx
-        insideSigners.forEach {
-            ix.accounts[it]?.let { account ->
-                val address = account.addr ?: return@let
-                val keyId = account.keyId ?: return@let
-                val signature = account.signature ?: return@let
-
-                innerTx = innerTx.addPayloadSignature(FlowAddress(address), keyIndex = keyId, signature = FlowSignature(signature))
-            }
-        }
-        // TODO not sure canonicalPaymentEnvelope is ok
-        return (DomainTag.TRANSACTION_DOMAIN_TAG + innerTx.canonicalAuthorizationEnvelope).bytesToHex()
-    }
-
 }

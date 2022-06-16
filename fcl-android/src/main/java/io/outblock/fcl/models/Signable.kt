@@ -1,12 +1,12 @@
 package io.outblock.fcl.models
 
 
+import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.cadence.Field
 import io.outblock.fcl.FlowApi
 import io.outblock.fcl.models.response.PollingResponse
-import io.outblock.fcl.utils.createFlowField
 import io.outblock.fcl.utils.removeAddressPrefix
 
 data class Signable(
@@ -63,7 +63,7 @@ data class Interaction(
     @SerializedName("accounts")
     var accounts: Map<String, SignableUser> = mapOf(),
     @SerializedName("arguments")
-    var arguments: Map<String, Argument> = mapOf(),
+    var arguments: LinkedHashMap<String, Argument> = linkedMapOf(),
     @SerializedName("assigns")
     var assigns: Map<String, String> = mapOf(),
     @SerializedName("authorizations")
@@ -290,42 +290,54 @@ fun <T> Field<T>.toFclArgument(): Argument {
 }
 
 fun Interaction.toFlowTransaction(): FlowTransaction {
-    val proposalKey = createFlowProposalKey()
+    val ix = this
+    val propKey = createFlowProposalKey()
 
     val payerAccount = payer
-    val payerAddress = accounts[payerAccount]?.addr ?: throw RuntimeException("missing payer")
+    val payer = accounts[payerAccount]?.addr ?: throw RuntimeException("missing payer")
 
-    var tx = FlowTransaction(
-        script = FlowScript(message.cadence.orEmpty()),
-        arguments = message.arguments.mapNotNull { arguments[it]?.asArgument }.mapNotNull { createFlowField(it.type, it.value) }
-            .map { FlowArgument(it) },
-        referenceBlockId = FlowId(message.refBlock.orEmpty()),
-        gasLimit = (message.computeLimit ?: 100).toLong(),
-        proposalKey = proposalKey,
-        payerAddress = FlowAddress(payerAddress),
+    val insideSigners = findInsideSigners()
+    val outsideSigners = findOutsideSigners()
+
+    return flowTransaction {
+        script(FlowScript(message.cadence.orEmpty()))
+        arguments = ix.message.arguments.mapNotNull { ix.arguments[it]?.asArgument }.map {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("type", it.type)
+            jsonObject.addProperty("value", it.value)
+            jsonObject.toString().toByteArray()
+        }.map { FlowArgument(it) }.toMutableList()
+
+        referenceBlockId = FlowId(message.refBlock.orEmpty())
+        gasLimit = (message.computeLimit ?: 100).toLong()
+        proposalKey = propKey
+        payerAddress = FlowAddress(payer)
         authorizers = authorizations.mapNotNull { accounts[it]?.addr }.distinct().map { FlowAddress(it) }
-    )
 
-    findInsideSigners().forEach { signer ->
-        accounts[signer]?.let {
-            val address = it.addr
-            val keyId = it.keyId
-            val signature = it.signature
+        addPayloadSignatures {
+            insideSigners.forEach { tempID ->
+                accounts[tempID]?.let { signableUser ->
+                    signature(
+                        FlowAddress(signableUser.addr.orEmpty()),
+                        signableUser.keyId ?: 0,
+                        FlowSignature(signableUser.signature.orEmpty())
+                    )
+                }
+            }
+        }
 
-            tx = tx.addPayloadSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
+        addEnvelopeSignatures {
+            outsideSigners.forEach { tempID ->
+                accounts[tempID]?.let { signableUser ->
+                    signature(
+                        FlowAddress(signableUser.addr.orEmpty()),
+                        signableUser.keyId ?: 0,
+                        FlowSignature(signableUser.signature.orEmpty())
+                    )
+                }
+            }
         }
     }
-
-    findOutsideSigners().forEach { signer ->
-        accounts[signer]?.let {
-            val address = it.addr
-            val keyId = it.keyId
-            val signature = it.signature
-
-            tx = tx.addEnvelopeSignature(FlowAddress(address.orEmpty()), keyIndex = keyId ?: 0, signature = FlowSignature(signature.orEmpty()))
-        }
-    }
-    return tx
 }
 
 fun Interaction.createFlowProposalKey(): FlowTransactionProposalKey {
@@ -371,7 +383,7 @@ fun Interaction.buildPreSignable(roles: Roles): Signable {
         fType = Signable.FType.preSignable.value,
         roles = roles,
         cadence = message.cadence.orEmpty(),
-        args = arguments.values.map { it.asArgument },
+        args = message.arguments.mapNotNull { arguments[it]?.asArgument },
         interaction = this,
     ).apply {
         voucher = generateVoucher()

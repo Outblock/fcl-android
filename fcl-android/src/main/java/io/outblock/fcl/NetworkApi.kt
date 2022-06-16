@@ -6,10 +6,7 @@ import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus
 import io.outblock.fcl.models.response.Service
-import io.outblock.fcl.utils.FCLError
-import io.outblock.fcl.utils.FCLException
-import io.outblock.fcl.utils.repeatWhen
-import io.outblock.fcl.utils.runBlockDelay
+import io.outblock.fcl.utils.*
 import io.outblock.fcl.webview.FCLWebViewLifecycle
 import io.outblock.fcl.webview.WebViewActivity
 import io.outblock.fcl.webview.WebViewLifecycleObserver
@@ -161,6 +158,9 @@ private class AuthzBodyInterceptor : Interceptor {
             if (request.url.queryParameter("l6n").isNullOrBlank()) {
                 val url = request.url.newBuilder().addQueryParameter("l6n", it).build()
                 request = request.newBuilder().url(url).build()
+            }
+            if (request.url.toUrl().toString().contains("/payer")) {
+                logd("payer request", "${request.url.toUrl()}")
             }
         }
 

@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class io.outblock.fcl.lifecycle.FCLContentProvider {*;}
+-keep class io.outblock.fcl.** {*;}

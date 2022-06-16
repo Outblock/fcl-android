@@ -5,6 +5,7 @@ import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import io.outblock.fcl.FlowApi
+import io.outblock.fcl.models.Argument
 import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
@@ -34,7 +35,7 @@ internal class AuthzSend {
             }
             builder.arguments.map { it.toFclArgument() }.apply {
                 message.arguments = map { it.tempId }
-                arguments = associate { it.tempId to it }
+                arguments = toLinkedMap()
             }
             builder.limit?.let { message.computeLimit = it }
         }
@@ -42,6 +43,12 @@ internal class AuthzSend {
 
     private fun sendIX(ix: Interaction): FlowId {
         return FlowApi.get().sendTransaction(ix.toFlowTransaction())
+    }
+
+    private fun List<Argument>.toLinkedMap(): LinkedHashMap<String, Argument> {
+        val map = linkedMapOf<String, Argument>()
+        forEach { map[it.tempId] = it }
+        return map
     }
 }
 

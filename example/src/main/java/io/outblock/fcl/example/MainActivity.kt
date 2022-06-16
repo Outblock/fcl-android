@@ -12,7 +12,6 @@ import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.FCL
 import io.outblock.fcl.provider.WalletProvider
 import io.outblock.fcl.utils.ioScope
-import io.outblock.fcl.utils.logd
 import io.outblock.fcl.utils.uiScope
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +32,6 @@ class MainActivity : AppCompatActivity() {
         }
         setupAuth()
         setupSendTransaction()
-        logd("xxx", "${byteArrayOf(1, 2) + byteArrayOf(5, 6)}")
     }
 
     private fun setupAuth() {
@@ -77,15 +75,7 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<View>(R.id.button_send_transaction)
         editText.clearFocus()
         editText.setText(
-            """
-           transaction(test: String, testInt: Int) {
-               prepare(signer: AuthAccount) {
-                    log(signer.address)
-                    log(test)
-                    log(testInt)
-               }
-           }
-        """.trimIndent()
+            "   transaction(test: String, testInt: Int) {\n       prepare(signer: AuthAccount) {\n            log(signer.address)\n            log(test)\n            log(testInt)\n       }\n   }"
         )
 
         button.setOnClickListener {
