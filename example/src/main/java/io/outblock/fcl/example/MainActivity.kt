@@ -1,6 +1,9 @@
 package io.outblock.fcl.example
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.FCL
 import io.outblock.fcl.provider.WalletProvider
@@ -71,23 +75,46 @@ class MainActivity : AppCompatActivity() {
     private fun setupSendTransaction() {
         val editText = findViewById<EditText>(R.id.transaction_edittext)
         val txidView = findViewById<TextView>(R.id.txid_view)
+        val txidLayout = findViewById<View>(R.id.txid_wrapper)
         val viewOnFlowScanView = findViewById<View>(R.id.view_on_flow_scan)
         val button = findViewById<View>(R.id.button_send_transaction)
         editText.clearFocus()
         editText.setText(
-            "   transaction(test: String, testInt: Int) {\n       prepare(signer: AuthAccount) {\n            log(signer.address)\n            log(test)\n            log(testInt)\n       }\n   }"
+            """
+                transaction(test: String, testInt: Int) {
+                   prepare(signer: AuthAccount) {
+                        log(signer.address)
+                        log(test)
+                        log(testInt)
+                   }
+               }
+            """.trimIndent()
         )
 
         button.setOnClickListener {
             ioScope {
-                FCL.send {
+                val tid = FCL.send {
                     script(editText.text.toString())
                     arg { string("Test2") }
                     arg { int(1) }
                     gaslimit(1000)
                 }
+                Log.d(TAG, "tid:$tid")
+                uiScope {
+                    txidView.text = tid
+                    txidLayout.visibility = View.VISIBLE
+                    viewOnFlowScanView.setOnClickListener {
+                        "https://${if (FCL.isMainnet()) "" else "testnet."}flowscan.org/transaction/$tid".openInSystemBrowser(
+                            this@MainActivity
+                        )
+                    }
+                }
             }
         }
+    }
+
+    fun String.openInSystemBrowser(context: Context) {
+        ContextCompat.startActivity(context, Intent(Intent.ACTION_VIEW, Uri.parse(this)), null)
     }
 
     companion object {

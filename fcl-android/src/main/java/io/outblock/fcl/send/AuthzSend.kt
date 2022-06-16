@@ -1,7 +1,6 @@
 package io.outblock.fcl.send
 
 import androidx.annotation.WorkerThread
-import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import io.outblock.fcl.FlowApi
@@ -10,7 +9,6 @@ import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
 import io.outblock.fcl.resolve.*
-import io.outblock.fcl.utils.logd
 
 internal class AuthzSend {
     @WorkerThread
@@ -24,7 +22,7 @@ internal class AuthzSend {
             SignatureResolver(),
         ).forEach { it.resolve(ix) }
 
-        val id = sendIX(ix)
+        val id = FlowApi.get().sendTransaction(ix.toFlowTransaction())
         return id.base16Value
     }
 
@@ -39,15 +37,8 @@ internal class AuthzSend {
                 arguments = toLinkedMap()
             }
 
-            logd("xxx", "message.arguments:${message.arguments}")
-            logd("xxx", "arguments:${arguments}")
-
             builder.limit?.let { message.computeLimit = it }
         }
-    }
-
-    private fun sendIX(ix: Interaction): FlowId {
-        return FlowApi.get().sendTransaction(ix.toFlowTransaction())
     }
 
     private fun List<Argument>.toLinkedMap(): LinkedHashMap<String, Argument> {

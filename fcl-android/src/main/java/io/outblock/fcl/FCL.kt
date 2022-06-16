@@ -69,8 +69,7 @@ object FCL {
 
     @WorkerThread
     fun send(builder: ScriptBuilder.() -> Unit): String {
-        val tid = runBlocking { AuthzSend().send(builder) }
-        return tid
+        return runBlocking { AuthzSend().send(builder) }
     }
 
     fun unauthenticate() {
@@ -88,6 +87,8 @@ object FCL {
     fun signUserMessage(message: String): String {
         return ""
     }
+
+    fun isMainnet(): Boolean = config.get(Config.KEY.Env) == "mainnet"
 }
 
 class User(

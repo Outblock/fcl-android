@@ -6,14 +6,19 @@ import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus
 import io.outblock.fcl.models.response.Service
-import io.outblock.fcl.utils.*
+import io.outblock.fcl.utils.FCLError
+import io.outblock.fcl.utils.FCLException
+import io.outblock.fcl.utils.repeatWhen
+import io.outblock.fcl.utils.runBlockDelay
 import io.outblock.fcl.webview.FCLWebViewLifecycle
 import io.outblock.fcl.webview.WebViewActivity
 import io.outblock.fcl.webview.WebViewLifecycleObserver
 import io.outblock.fcl.webview.openAuthenticationWebView
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
@@ -110,9 +115,9 @@ private suspend fun tryPollService(
     return pollResponse ?: response
 }
 
-private suspend fun poll(service: Service): PollingResponse {
+private suspend fun poll(service: Service): PollingResponse? {
     if (!PollServiceState.isPollEnable()) {
-        throw FCLException(FCLError.declined)
+        return null
     }
 
     val url = service.endpoint ?: throw FCLException(FCLError.invaildURL)
@@ -157,25 +162,19 @@ private class AuthzBodyInterceptor : Interceptor {
                 val url = request.url.newBuilder().addQueryParameter("l6n", it).build()
                 request = request.newBuilder().url(url).build()
             }
-            if (request.url.toUrl().toString().contains("/payer")) {
-                logd("payer request", "${request.url.toUrl()}")
-            }
         }
 
         request = request.newBuilder().apply {
             FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
             addHeader("Content-Type", "application/json")
             addHeader("Accept", "application/json")
-//            if (BuildConfig.DEBUG) {
-//                addHeader("Accept-Encoding", "identity")
-//            }
         }.build()
 
-//        if (request.method == "POST") {
-//            request.body.string()?.addAuthzBody()?.let { body ->
-//                request = request.newBuilder().post(body.toRequestBody("application/json".toMediaType())).build()
-//            }
-//        }
+        if (request.method == "POST") {
+            request.body.string()?.addAuthzBody()?.let { body ->
+                request = request.newBuilder().post(body.toRequestBody("application/json".toMediaType())).build()
+            }
+        }
 
         return chain.proceed(request)
     }
@@ -191,10 +190,8 @@ private fun String.addAuthzBody(): String? {
             json = "$json,\"client\":${
                 Gson().toJson(
                     mapOf(
-//                        "fclVersion" to FCL.version,
-//                        "fclLibrary" to "https://github.com/Outblock/fcl-android",
-                        "fclVersion" to "@outblock/fcl-swift@0.0.3",
-                        "fclLibrary" to "https://github.com/Outblock/fcl-swift",
+                        "fclVersion" to FCL.version,
+                        "fclLibrary" to "https://github.com/Outblock/fcl-android",
                         "hostname" to null,
                     )
                 )
