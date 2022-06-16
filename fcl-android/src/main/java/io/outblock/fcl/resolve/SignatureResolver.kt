@@ -26,7 +26,7 @@ class SignatureResolver : Resolver {
         }
 
         val outsideSigners = ix.findOutsideSigners()
-        val outsidePayload = (DomainTag.TRANSACTION_DOMAIN_TAG + tx.canonicalAuthorizationEnvelope).bytesToHex()
+        val outsidePayload = (DomainTag.TRANSACTION_DOMAIN_TAG + ix.toFlowTransaction().canonicalAuthorizationEnvelope).bytesToHex()
 
         val outPublishers = outsideSigners.map { fetchSignature(ix, outsidePayload, it) }
 

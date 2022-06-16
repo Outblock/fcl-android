@@ -10,6 +10,7 @@ import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
 import io.outblock.fcl.resolve.*
+import io.outblock.fcl.utils.logd
 
 internal class AuthzSend {
     @WorkerThread
@@ -37,6 +38,10 @@ internal class AuthzSend {
                 message.arguments = map { it.tempId }
                 arguments = toLinkedMap()
             }
+
+            logd("xxx", "message.arguments:${message.arguments}")
+            logd("xxx", "arguments:${arguments}")
+
             builder.limit?.let { message.computeLimit = it }
         }
     }

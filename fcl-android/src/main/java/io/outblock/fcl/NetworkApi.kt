@@ -12,10 +12,8 @@ import io.outblock.fcl.webview.WebViewActivity
 import io.outblock.fcl.webview.WebViewLifecycleObserver
 import io.outblock.fcl.webview.openAuthenticationWebView
 import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
@@ -168,16 +166,16 @@ private class AuthzBodyInterceptor : Interceptor {
             FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
             addHeader("Content-Type", "application/json")
             addHeader("Accept", "application/json")
-            if (BuildConfig.DEBUG) {
-                addHeader("Accept-Encoding", "identity")
-            }
+//            if (BuildConfig.DEBUG) {
+//                addHeader("Accept-Encoding", "identity")
+//            }
         }.build()
 
-        if (request.method == "POST") {
-            request.body.string()?.addAuthzBody()?.let { body ->
-                request = request.newBuilder().post(body.toRequestBody("application/json".toMediaType())).build()
-            }
-        }
+//        if (request.method == "POST") {
+//            request.body.string()?.addAuthzBody()?.let { body ->
+//                request = request.newBuilder().post(body.toRequestBody("application/json".toMediaType())).build()
+//            }
+//        }
 
         return chain.proceed(request)
     }
