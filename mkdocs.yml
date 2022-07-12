@@ -1,4 +1,6 @@
 site_name: FCL Android
 theme:
   name: material
-  
+  palette:
+    primary: green
+
