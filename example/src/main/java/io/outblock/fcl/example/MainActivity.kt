@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
-import io.outblock.fcl.FCL
+import io.outblock.fcl.Fcl
 import io.outblock.fcl.provider.WalletProvider
 import io.outblock.fcl.utils.ioScope
 import io.outblock.fcl.utils.uiScope
@@ -22,20 +22,51 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        kotlin.runCatching {
-            FCL.config(
-                appName = "FCLDemo",
-                appIcon = "https://placekitten.com/g/200/200",
-                location = "https://foo.com",
-                walletNode = "https://fcl-http-post.vercel.app/api",
-                accessNode = "https://access-testnet.onflow.org",
-                env = "mainnet",
-                scope = "email",
-                authn = WalletProvider.BLOCTO.endpoint.toString(),
-            )
-        }
+        Fcl.config(
+            appName = "FCLDemo",
+            appIcon = "https://placekitten.com/g/200/200",
+            location = "https://foo.com",
+            env = "mainnet",
+        )
         setupAuth()
         setupSendTransaction()
+        setupQuery()
+        setupSignMessage()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setupQuery() {
+        val edittext = findViewById<EditText>(R.id.query_cadence_edittext)
+        edittext.setText(
+            """
+            pub fun main(a: Int, b: Int, addr: Address): Int {
+              log(addr)
+              return a + b
+            }
+        """.trimIndent()
+        )
+        findViewById<View>(R.id.button_query).setOnClickListener {
+            ioScope {
+                val cadence = edittext.text.toString()
+                val result = Fcl.query {
+                    cadence(cadence)
+                    arg { int(7) }
+                    arg { int(3) }
+                    arg { address("0xba1132bc08f82fe2") }
+                }
+                uiScope { findViewById<TextView>(R.id.query_result_view).text = result }
+            }
+        }
+    }
+
+    private fun setupSignMessage() {
+        findViewById<View>(R.id.button_sign_message).setOnClickListener {
+            ioScope {
+                val message = findViewById<EditText>(R.id.sign_message_edittext).text.toString()
+                val signature = Fcl.signMessage(message)
+                uiScope { findViewById<TextView>(R.id.signed_message_view).text = signature }
+            }
+        }
     }
 
     private fun setupAuth() {
@@ -61,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.auth_button).setOnClickListener {
             val provider = if (tabLayout.selectedTabPosition == 0) WalletProvider.DAPPER else WalletProvider.BLOCTO
             ioScope {
-                val auth = FCL.authenticate(provider)
+                val auth = Fcl.authenticate(provider)
                 Log.d(TAG, "authenticate complete:$auth")
                 uiScope {
                     Toast.makeText(this, "authenticate complete", Toast.LENGTH_SHORT).show()
@@ -93,8 +124,8 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             ioScope {
-                val tid = FCL.send {
-                    script(editText.text.toString())
+                val tid = Fcl.mutate {
+                    cadence(editText.text.toString())
                     arg { string("Test2") }
                     arg { int(1) }
                     gaslimit(1000)
@@ -104,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                     txidView.text = tid
                     txidLayout.visibility = View.VISIBLE
                     viewOnFlowScanView.setOnClickListener {
-                        "https://${if (FCL.isMainnet()) "" else "testnet."}flowscan.org/transaction/$tid".openInSystemBrowser(
+                        "https://${if (Fcl.isMainnet()) "" else "testnet."}flowscan.org/transaction/$tid".openInSystemBrowser(
                             this@MainActivity
                         )
                     }

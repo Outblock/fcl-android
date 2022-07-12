@@ -1,7 +1,7 @@
 package io.outblock.fcl.webview
 
 import android.net.Uri
-import io.outblock.fcl.FCL
+import io.outblock.fcl.Fcl
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.lifecycle.LifecycleObserver
 import io.outblock.fcl.models.response.Service
@@ -15,9 +15,23 @@ fun Service.openAuthenticationWebView() {
 
     val uri = Uri.parse(url).buildUpon().apply {
         params?.forEach { appendQueryParameter(it.key, it.value) }
-        appendQueryParameter("l6n", FCL.config.get(Config.KEY.Location))
+        appendQueryParameter("l6n", Fcl.config.get(Config.KEY.Location))
     }.build()
     WebViewActivity.launchUrl(context, uri.toString())
+}
+
+fun Service.endpointUri(): Uri {
+    val url = endpoint ?: throw FCLException(FCLError.invaildURL)
+
+    return Uri.parse(url).buildUpon().apply {
+        params?.forEach { appendQueryParameter(it.key, it.value) }
+        appendQueryParameter("l6n", Fcl.config.get(Config.KEY.Location))
+    }.build()
+}
+
+fun Uri.openInWebView() {
+    val context = LifecycleObserver.context() ?: throw FCLException(FCLError.invaildContext)
+    WebViewActivity.launchUrl(context, this.toString())
 }
 
 internal object FCLWebViewLifecycle {

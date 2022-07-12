@@ -1,8 +1,9 @@
 package io.outblock.fcl.utils
 
 import android.util.Log
+import io.outblock.fcl.BuildConfig
 
-private const val PRINT_LOG = true
+private val PRINT_LOG = BuildConfig.DEBUG
 
 fun logv(tag: String?, msg: Any?) {
     log(tag, msg, Log.VERBOSE)

@@ -138,21 +138,3 @@ class Provider(
     @SerializedName("name")
     val name: String,
 )
-
-//"f_type": "Service",
-//"f_vsn": "1.0.0",
-//"type": "authz",
-//"uid": "blocto#authz",
-//"method": "HTTP/POST",
-//"identity": {
-//    "address": "0x8de6346622ee383d",
-//    "keyId": 1,
-//    "addr": "0x8de6346622ee383d"
-//},
-//"address": "0x8de6346622ee383d",
-//"addr": "0x8de6346622ee383d",
-//"keyId": 1,
-//"endpoint": "https://flow-wallet.blocto.app/api/flow/authz",
-//"params": {
-//    "sessionId": "fP7-nF9Ta-awU-kH7AXr"
-//}

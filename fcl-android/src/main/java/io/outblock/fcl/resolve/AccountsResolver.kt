@@ -1,6 +1,6 @@
 package io.outblock.fcl.resolve
 
-import io.outblock.fcl.FCL
+import io.outblock.fcl.Fcl
 import io.outblock.fcl.execHttpPost
 import io.outblock.fcl.models.*
 import io.outblock.fcl.models.response.FCLServiceType
@@ -19,10 +19,10 @@ class AccountsResolver : Resolver {
     }
 
     private suspend fun collectAccounts(ix: Interaction) {
-        val currentUser = FCL.currentUser ?: throw RuntimeException("FCL unauthenticated")
+        val currentUser = Fcl.currentUser ?: throw RuntimeException("FCL unauthenticated")
         assert(currentUser.loggedIn, lazyMessage = { "FCL unauthenticated" })
 
-        val service = FCL.serviceOfType(currentUser.services, FCLServiceType.preAuthz) ?: throw RuntimeException("missing preAuthz")
+        val service = currentUser.services.serviceOfType(FCLServiceType.preAuthz) ?: throw RuntimeException("missing preAuthz")
         val endpoint = service.endpoint ?: throw RuntimeException("missing preAuthz")
 
         val preSignable = ix.buildPreSignable(Roles())

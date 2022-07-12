@@ -157,7 +157,7 @@ private class AuthzBodyInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
 
-        FCL.config.get("location")?.let {
+        Fcl.config.get("location")?.let {
             if (request.url.queryParameter("l6n").isNullOrBlank()) {
                 val url = request.url.newBuilder().addQueryParameter("l6n", it).build()
                 request = request.newBuilder().url(url).build()
@@ -165,7 +165,7 @@ private class AuthzBodyInterceptor : Interceptor {
         }
 
         request = request.newBuilder().apply {
-            FCL.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
+            Fcl.config.get(Config.KEY.Location)?.let { addHeader("referer", it) }
             addHeader("Content-Type", "application/json")
             addHeader("Accept", "application/json")
         }.build()
@@ -185,12 +185,12 @@ private fun String.addAuthzBody(): String? {
         var json = this
         if (json.endsWith("}")) {
             json = json.removeSuffix("}")
-            json = "$json,\"app\":${Gson().toJson(FCL.config.configLens("^app.detail."))}"
-            json = "$json,\"service\":${Gson().toJson(FCL.config.configLens("^service."))}"
+            json = "$json,\"app\":${Gson().toJson(Fcl.config.configLens("^app.detail."))}"
+            json = "$json,\"service\":${Gson().toJson(Fcl.config.configLens("^service."))}"
             json = "$json,\"client\":${
                 Gson().toJson(
                     mapOf(
-                        "fclVersion" to FCL.version,
+                        "fclVersion" to Fcl.version,
                         "fclLibrary" to "https://github.com/Outblock/fcl-android",
                         "hostname" to null,
                     )

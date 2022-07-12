@@ -1,19 +1,18 @@
-package io.outblock.fcl.send
+package io.outblock.fcl.request
 
 import androidx.annotation.WorkerThread
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import io.outblock.fcl.FlowApi
 import io.outblock.fcl.models.Argument
 import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
+import io.outblock.fcl.request.builder.FclBuilder
 import io.outblock.fcl.resolve.*
 
 internal class AuthzSend {
     @WorkerThread
-    suspend fun send(builder: ScriptBuilder.() -> Unit): String {
-        val ix = prepare(ScriptBuilder().apply { builder(this) })
+    suspend fun send(builder: FclBuilder.() -> Unit): String {
+        val ix = prepare(FclBuilder().apply { builder(this) })
         listOf(
             CadenceResolver(),
             AccountsResolver(),
@@ -26,9 +25,9 @@ internal class AuthzSend {
         return id.base16Value
     }
 
-    private fun prepare(builder: ScriptBuilder): Interaction {
+    private fun prepare(builder: FclBuilder): Interaction {
         return Interaction().apply {
-            builder.script?.let {
+            builder.cadence?.let {
                 tag = Interaction.Tag.transaction.value
                 message.cadence = it
             }
@@ -45,35 +44,5 @@ internal class AuthzSend {
         val map = linkedMapOf<String, Argument>()
         forEach { map[it.tempId] = it }
         return map
-    }
-}
-
-class ScriptBuilder {
-
-    internal var script: String? = null
-
-    internal var arguments: MutableList<Field<*>> = mutableListOf()
-
-    internal var limit: Int? = null
-
-    fun script(script: String) {
-        this.script = script
-    }
-
-    fun arguments(arguments: MutableList<Field<*>>) {
-        this.arguments = arguments
-    }
-
-    fun arguments(arguments: JsonCadenceBuilder.() -> Iterable<Field<*>>) {
-        val builder = JsonCadenceBuilder()
-        this.arguments = arguments(builder).toMutableList()
-    }
-
-    fun arg(argument: Field<*>) = arguments.add(argument)
-
-    fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(JsonCadenceBuilder()))
-
-    fun gaslimit(limit: Int) {
-        this.limit = limit
     }
 }
