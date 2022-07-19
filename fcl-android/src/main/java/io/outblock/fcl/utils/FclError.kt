@@ -2,7 +2,7 @@ package io.outblock.fcl.utils
 
 import io.outblock.fcl.BuildConfig
 
-class FCLException(
+class FclException(
     private val error: FclError,
     private val exception: Exception? = null,
 ) : Exception(error.value) {

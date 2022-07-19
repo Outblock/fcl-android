@@ -6,8 +6,8 @@ import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus
 import io.outblock.fcl.models.response.Service
-import io.outblock.fcl.utils.FCLException
 import io.outblock.fcl.utils.FclError
+import io.outblock.fcl.utils.FclException
 import io.outblock.fcl.utils.repeatWhen
 import io.outblock.fcl.utils.runBlockDelay
 import io.outblock.fcl.webview.FCLWebViewLifecycle
@@ -38,7 +38,7 @@ internal suspend fun execHttpPost(url: String, params: Map<String, String>? = ma
         ResponseStatus.APPROVED -> WebViewActivity.close()
         ResponseStatus.DECLINED -> {
             WebViewActivity.close()
-            throw FCLException(FclError.declined)
+            throw FclException(FclError.declined)
         }
         ResponseStatus.PENDING -> return tryPollService(response)
     }
@@ -95,13 +95,13 @@ private suspend fun tryPollService(
     response: PollingResponse,
 ): PollingResponse {
     PollServiceState.poll()
-    val local = response.local() ?: throw FCLException(FclError.generic)
-    val updates = (response.updates ?: response.authorizationUpdates) ?: throw FCLException(FclError.generic)
+    val local = response.local() ?: throw FclException(FclError.generic)
+    val updates = (response.updates ?: response.authorizationUpdates) ?: throw FclException(FclError.generic)
 
     try {
         local.openAuthenticationWebView()
     } catch (e: Exception) {
-        throw FCLException(FclError.generic, exception = e)
+        throw FclException(FclError.generic, exception = e)
     }
 
 
@@ -120,7 +120,7 @@ private suspend fun poll(service: Service): PollingResponse? {
         return null
     }
 
-    val url = service.endpoint ?: throw FCLException(FclError.invaildURL)
+    val url = service.endpoint ?: throw FclException(FclError.invaildURL)
 
     val response = retrofitAuthApi().executeGet(url, service.params)
 
@@ -128,7 +128,7 @@ private suspend fun poll(service: Service): PollingResponse? {
         ResponseStatus.APPROVED -> WebViewActivity.close()
         ResponseStatus.DECLINED -> {
             WebViewActivity.close()
-            throw FCLException(FclError.declined)
+            throw FclException(FclError.declined)
         }
         else -> return response
     }

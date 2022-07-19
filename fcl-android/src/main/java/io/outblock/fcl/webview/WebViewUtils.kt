@@ -5,13 +5,13 @@ import io.outblock.fcl.Fcl
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.lifecycle.LifecycleObserver
 import io.outblock.fcl.models.response.Service
-import io.outblock.fcl.utils.FCLException
 import io.outblock.fcl.utils.FclError
+import io.outblock.fcl.utils.FclException
 
 
 fun Service.openAuthenticationWebView() {
-    val url = endpoint ?: throw FCLException(FclError.invaildURL)
-    val context = LifecycleObserver.context() ?: throw FCLException(FclError.invaildContext)
+    val url = endpoint ?: throw FclException(FclError.invaildURL)
+    val context = LifecycleObserver.context() ?: throw FclException(FclError.invaildContext)
 
     val uri = Uri.parse(url).buildUpon().apply {
         params?.forEach { appendQueryParameter(it.key, it.value) }
@@ -21,7 +21,7 @@ fun Service.openAuthenticationWebView() {
 }
 
 fun Service.endpointUri(): Uri {
-    val url = endpoint ?: throw FCLException(FclError.invaildURL)
+    val url = endpoint ?: throw FclException(FclError.invaildURL)
 
     return Uri.parse(url).buildUpon().apply {
         params?.forEach { appendQueryParameter(it.key, it.value) }
@@ -30,7 +30,7 @@ fun Service.endpointUri(): Uri {
 }
 
 fun Uri.openInWebView() {
-    val context = LifecycleObserver.context() ?: throw FCLException(FclError.invaildContext)
+    val context = LifecycleObserver.context() ?: throw FclException(FclError.invaildContext)
     WebViewActivity.launchUrl(context, this.toString())
 }
 
