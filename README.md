@@ -44,12 +44,25 @@ Use the configuration below to add this SDK to your project using Maven or Gradl
 
 ```gradle
 
-implementation 'io.outblock.fcl:[VERSION HERE]'
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+```
+
+```gradle
+
+implementation 'com.github.Outblock:fcl-android:0.02'
 
 ```
 
 #### Config
-Values only need to be set once. We recommend doing this once and as early in the life cycle as possible. To set a configuration value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
+
+Values only need to be set once. We recommend doing this once and as early in the life cycle as possible. To set a configuration value, the `put`
+method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
 
 ```kotlin
 
