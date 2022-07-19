@@ -5,8 +5,8 @@ import com.nftco.flow.sdk.bytesToHex
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.execHttpPost
 import io.outblock.fcl.models.response.FCLServiceType
-import io.outblock.fcl.utils.FCLError
 import io.outblock.fcl.utils.FCLException
+import io.outblock.fcl.utils.FclError
 
 internal class SignMessageSend {
 
@@ -16,9 +16,9 @@ internal class SignMessageSend {
     suspend fun sign(message: String): String {
 
         val service = Fcl.currentUser?.services?.first { it.type == FCLServiceType.userSignature.value }
-            ?: throw FCLException(FCLError.invaildService)
+            ?: throw FCLException(FclError.invaildService)
 
-        val endpoint = service.endpoint ?: throw FCLException(FCLError.invaildService)
+        val endpoint = service.endpoint ?: throw FCLException(FclError.invaildService)
 
         val signable = SignableMessage(message.toByteArray().bytesToHex())
 

@@ -3,7 +3,7 @@ package io.outblock.fcl.utils
 import io.outblock.fcl.BuildConfig
 
 class FCLException(
-    private val error: FCLError,
+    private val error: FclError,
     private val exception: Exception? = null,
 ) : Exception(error.value) {
 
@@ -15,7 +15,7 @@ class FCLException(
 
 }
 
-enum class FCLError(val value: String) {
+enum class FclError(val value: String) {
     generic("generic"),
     invaildURL("invaildURL"),
     invaildService("invaildService"),
