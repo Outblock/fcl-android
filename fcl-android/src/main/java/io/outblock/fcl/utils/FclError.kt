@@ -1,18 +1,13 @@
 package io.outblock.fcl.utils
 
-import io.outblock.fcl.BuildConfig
-
 class FclException(
     private val error: FclError,
     private val exception: Exception? = null,
 ) : Exception(error.value) {
 
     init {
-        if (BuildConfig.DEBUG) {
-            printStackTrace()
-        }
+        exception?.printStackTrace()
     }
-
 }
 
 enum class FclError(val value: String) {

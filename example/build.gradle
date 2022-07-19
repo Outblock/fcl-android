@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':fcl-android')
+//    implementation project(path: ':fcl-android')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -41,6 +41,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+
+    implementation 'com.github.Outblock:fcl-android:0.02'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

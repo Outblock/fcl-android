@@ -1,5 +1,6 @@
 package io.outblock.fcl
 
+import android.os.Looper
 import androidx.annotation.WorkerThread
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.simpleFlowScript
@@ -14,6 +15,7 @@ import io.outblock.fcl.request.AuthnRequest
 import io.outblock.fcl.request.AuthzSend
 import io.outblock.fcl.request.SignMessageSend
 import io.outblock.fcl.request.builder.FclBuilder
+import io.outblock.fcl.utils.ioScope
 import kotlinx.coroutines.runBlocking
 
 object Fcl {
@@ -67,9 +69,15 @@ object Fcl {
      */
     @WorkerThread
     fun authenticate(provider: Provider): AuthnResponse {
+        assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
+
         val resp = AuthnRequest().authenticate(provider)
         currentUser = User.fromAuthn(resp)
         return AuthnResponse(resp.data?.addr, resp.status, resp.reason)
+    }
+
+    fun authenticateAsync(provider: Provider, callback: (response: AuthnResponse) -> Unit) {
+        ioScope { callback(authenticate(provider)) }
     }
 
     /**
@@ -99,6 +107,7 @@ object Fcl {
      */
     @WorkerThread
     fun mutate(builder: FclBuilder.() -> Unit): String {
+        assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
         return runBlocking { AuthzSend().send(builder) }
     }
 
@@ -125,6 +134,8 @@ object Fcl {
      */
     @WorkerThread
     fun query(builder: FclBuilder.() -> Unit): String {
+        assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
+
         val outBuilder = FclBuilder().apply { builder(this) }
 
         assert(!outBuilder.cadence.isNullOrBlank()) { "Script is empty" }
@@ -141,6 +152,8 @@ object Fcl {
      */
     @WorkerThread
     fun signMessage(message: String): String {
+        assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
+
         return runBlocking { SignMessageSend().sign(message) }
     }
 

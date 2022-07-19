@@ -19,11 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <provider
-            android:authorities="io.outblock.fcl.context"
-            android:name="io.outblock.fcl.lifecycle.FCLContentProvider"
-            android:exported="false"/>
     </application>
 
 </manifest>
