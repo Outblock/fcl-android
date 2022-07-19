@@ -62,7 +62,7 @@ object Fcl {
      *
      * Example
      * ```kotlin
-     * val auth = FCL.authenticate(WalletProvider.BLOCTO)
+     * val auth = Fcl.authenticate(WalletProvider.BLOCTO)
      * ```
      *
      * @param [provider] provider used for authentication
@@ -85,7 +85,7 @@ object Fcl {
      *
      * Example:
      * ```kotlin
-     * val tid = FCL.mutate {
+     * val tid = Fcl.mutate {
      *   cadence("""
      *      transaction(test: String, testInt: Int) {
      *         prepare(signer: AuthAccount) {
@@ -115,7 +115,7 @@ object Fcl {
      * Query the chain: Send arbitrary Cadence scripts to the chain and receive back decoded values
      * Example
      * ```kotlin
-     * val result = FCL.query {
+     * val result = Fcl.query {
      *   cadence(
      *       """
      *       pub fun main(a: Int, b: Int, addr: Address): Int {

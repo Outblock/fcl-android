@@ -66,8 +66,8 @@ method on the `config` instance needs to be called, the `put` method returns the
 
 ```kotlin
 
-FCL.config(  
-    appName = "FCLDemo",  
+Fcl.config(
+    appName = "FCLDemo",
     appIcon = "https://placekitten.com/g/200/200",  
     location = "https://foo.com",  
     walletNode = "https://fcl-http-post.vercel.app/api",  
@@ -94,7 +94,7 @@ FCL.config(
 Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `authn` endpoint which lets the user select a wallet to authenticate with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](TODO) object for future use and authorization.
 
 ```kotlin
-FCL.authenticate(WalletProvider.DAPPER)
+Fcl.authenticate(WalletProvider.DAPPER)
 ```
 
 
@@ -106,7 +106,7 @@ A **convenience method** that produces the needed authorization details for the 
 **Note:** The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters, it is shown only for example purposes. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
 
 ```kotlin
-val tid = FCL.send {
+val tid = Fcl.send {
     script(
         """  
         transaction(test: String, testInt: Int) {           

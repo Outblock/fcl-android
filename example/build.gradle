@@ -42,7 +42,7 @@ dependencies {
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
-    implementation 'com.github.Outblock:fcl-android:0.02'
+    implementation 'com.github.Outblock:fcl-android:0.03'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
