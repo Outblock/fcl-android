@@ -50,7 +50,7 @@ data class PollingResponse(
 
 data class PollingData(
     @SerializedName("addr")
-    val addr: String?,
+    val address: String?,
     @SerializedName("services")
     val services: List<Service>?,
     @SerializedName("f_type")

@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "authenticate complete:$auth")
                 CoroutineScope(Dispatchers.Main).launch {
                     Toast.makeText(this@MainActivity, "authenticate complete", Toast.LENGTH_SHORT).show()
-                    findViewById<TextView>(R.id.address).text = auth.address
+                    findViewById<TextView>(R.id.address).text = auth.data?.address
                 }
             }
         }
@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                     cadence(editText.text.toString())
                     arg { string("Test2") }
                     arg { int(1) }
-                    gaslimit(1000)
+                    gasLimit(1000)
                 }
                 Log.d(TAG, "tid:$tid")
                 CoroutineScope(Dispatchers.Main).launch {

@@ -1,6 +1,5 @@
 package io.outblock.fcl.request
 
-import androidx.annotation.WorkerThread
 import io.outblock.fcl.FlowApi
 import io.outblock.fcl.models.Argument
 import io.outblock.fcl.models.Interaction
@@ -10,7 +9,7 @@ import io.outblock.fcl.request.builder.FclBuilder
 import io.outblock.fcl.resolve.*
 
 internal class AuthzSend {
-    @WorkerThread
+
     suspend fun send(builder: FclBuilder.() -> Unit): String {
         val ix = prepare(FclBuilder().apply { builder(this) })
         listOf(

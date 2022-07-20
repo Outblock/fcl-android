@@ -1,11 +1,9 @@
 package io.outblock.fcl
 
 import android.os.Looper
-import androidx.annotation.WorkerThread
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.simpleFlowScript
 import io.outblock.fcl.config.Config
-import io.outblock.fcl.models.response.AuthnResponse
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.provider.Provider
@@ -67,16 +65,15 @@ object Fcl {
      *
      * @param [provider] provider used for authentication
      */
-    @WorkerThread
-    fun authenticate(provider: Provider): AuthnResponse {
+    fun authenticate(provider: Provider): PollingResponse {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
 
         val resp = AuthnRequest().authenticate(provider)
         currentUser = User.fromAuthn(resp)
-        return AuthnResponse(resp.data?.addr, resp.status, resp.reason)
+        return resp
     }
 
-    fun authenticateAsync(provider: Provider, callback: (response: AuthnResponse) -> Unit) {
+    fun authenticateAsync(provider: Provider, callback: (response: PollingResponse) -> Unit) {
         ioScope { callback(authenticate(provider)) }
     }
 
@@ -105,7 +102,6 @@ object Fcl {
      *
      * @throws FCLException If run into problems
      */
-    @WorkerThread
     fun mutate(builder: FclBuilder.() -> Unit): String {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
         return runBlocking { AuthzSend().send(builder) }
@@ -132,7 +128,6 @@ object Fcl {
      *
      * @return executed result of cadence
      */
-    @WorkerThread
     fun query(builder: FclBuilder.() -> Unit): String {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
 
@@ -150,7 +145,6 @@ object Fcl {
     /**
      * TODO : not support right now
      */
-    @WorkerThread
     fun signMessage(message: String): String {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
 
@@ -181,7 +175,7 @@ class User(
 ) {
     companion object {
         fun fromAuthn(authn: PollingResponse): User? {
-            val address = authn.data?.addr ?: return null
+            val address = authn.data?.address ?: return null
             return User(
                 address = FlowAddress(address),
                 services = authn.data.services,

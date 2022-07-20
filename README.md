@@ -106,8 +106,8 @@ A **convenience method** that produces the needed authorization details for the 
 **Note:** The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters, it is shown only for example purposes. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
 
 ```kotlin
-val tid = Fcl.send {
-    script(
+val tid = Fcl.mutate {
+    cadence(
         """  
         transaction(test: String, testInt: Int) {           
 	      prepare(signer: AuthAccount) {                
@@ -120,7 +120,7 @@ val tid = Fcl.send {
     )
     arg { string("Test2") }
     arg { int(1) }
-    gaslimit(1000)
+    gasLimit(1000)
 }
 ```
 

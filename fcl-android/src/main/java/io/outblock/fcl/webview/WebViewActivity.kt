@@ -1,13 +1,13 @@
 package io.outblock.fcl.webview
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import io.outblock.fcl.utils.logd
 
-internal class WebViewActivity : AppCompatActivity() {
+internal class WebViewActivity : Activity() {
 
     private val url by lazy { intent.getStringExtra(EXTRA_URL).orEmpty() }
 
@@ -21,7 +21,6 @@ internal class WebViewActivity : AppCompatActivity() {
         FCLWebViewLifecycle.onWebViewOpen(url)
 
         actionBar?.hide()
-        supportActionBar?.hide()
     }
 
     override fun onBackPressed() {

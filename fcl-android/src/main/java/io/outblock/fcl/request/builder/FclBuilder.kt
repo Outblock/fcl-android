@@ -28,7 +28,7 @@ class FclBuilder {
 
     fun arg(argument: JsonCadenceBuilder.() -> Field<*>) = arg(argument(JsonCadenceBuilder()))
 
-    fun gaslimit(limit: Int) {
+    fun gasLimit(limit: Int) {
         this.limit = limit
     }
 }
