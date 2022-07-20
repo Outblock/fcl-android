@@ -5,27 +5,27 @@ import io.outblock.fcl.BuildConfig
 
 private val PRINT_LOG = BuildConfig.DEBUG
 
-fun logv(tag: String?, msg: Any?) {
+internal fun logv(tag: String?, msg: Any?) {
     log(tag, msg, Log.VERBOSE)
 }
 
-fun logd(tag: String?, msg: Any?) {
+internal fun logd(tag: String?, msg: Any?) {
     log(tag, msg, Log.DEBUG)
 }
 
-fun logi(tag: String?, msg: Any?) {
+internal fun logi(tag: String?, msg: Any?) {
     log(tag, msg, Log.INFO)
 }
 
-fun logw(tag: String?, msg: Any?) {
+internal fun logw(tag: String?, msg: Any?) {
     log(tag, msg, Log.WARN)
 }
 
-fun loge(tag: String?, msg: Any?) {
+internal fun loge(tag: String?, msg: Any?) {
     log(tag, msg, Log.ERROR)
 }
 
-fun loge(msg: Throwable?, printStackTrace: Boolean = true) {
+internal fun loge(msg: Throwable?, printStackTrace: Boolean = true) {
     log("Exception", msg?.message ?: "", Log.ERROR)
     if (PRINT_LOG && printStackTrace) {
         msg?.printStackTrace()

@@ -15,8 +15,9 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.provider.WalletProvider
-import io.outblock.fcl.utils.ioScope
-import io.outblock.fcl.utils.uiScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         """.trimIndent()
         )
         findViewById<View>(R.id.button_query).setOnClickListener {
-            ioScope {
+            CoroutineScope(Dispatchers.IO).launch {
                 val cadence = edittext.text.toString()
                 val result = Fcl.query {
                     cadence(cadence)
@@ -54,17 +55,17 @@ class MainActivity : AppCompatActivity() {
                     arg { int(3) }
                     arg { address("0xba1132bc08f82fe2") }
                 }
-                uiScope { findViewById<TextView>(R.id.query_result_view).text = result }
+                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.query_result_view).text = result }
             }
         }
     }
 
     private fun setupSignMessage() {
         findViewById<View>(R.id.button_sign_message).setOnClickListener {
-            ioScope {
+            CoroutineScope(Dispatchers.IO).launch {
                 val message = findViewById<EditText>(R.id.sign_message_edittext).text.toString()
                 val signature = Fcl.signMessage(message)
-                uiScope { findViewById<TextView>(R.id.signed_message_view).text = signature }
+                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_view).text = signature }
             }
         }
     }
@@ -91,11 +92,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.auth_button).setOnClickListener {
             val provider = if (tabLayout.selectedTabPosition == 0) WalletProvider.DAPPER else WalletProvider.BLOCTO
-            ioScope {
+            CoroutineScope(Dispatchers.IO).launch {
                 val auth = Fcl.authenticate(provider)
                 Log.d(TAG, "authenticate complete:$auth")
-                uiScope {
-                    Toast.makeText(this, "authenticate complete", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(this@MainActivity, "authenticate complete", Toast.LENGTH_SHORT).show()
                     findViewById<TextView>(R.id.address).text = auth.address
                 }
             }
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         button.setOnClickListener {
-            ioScope {
+            CoroutineScope(Dispatchers.IO).launch {
                 val tid = Fcl.mutate {
                     cadence(editText.text.toString())
                     arg { string("Test2") }
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                     gaslimit(1000)
                 }
                 Log.d(TAG, "tid:$tid")
-                uiScope {
+                CoroutineScope(Dispatchers.Main).launch {
                     txidView.text = tid
                     txidLayout.visibility = View.VISIBLE
                     viewOnFlowScanView.setOnClickListener {
@@ -144,7 +145,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun String.openInSystemBrowser(context: Context) {
+    private fun String.openInSystemBrowser(context: Context) {
         ContextCompat.startActivity(context, Intent(Intent.ACTION_VIEW, Uri.parse(this)), null)
     }
 
