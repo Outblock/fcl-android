@@ -55,7 +55,7 @@ allprojects {
 
 ```gradle
 
-implementation 'com.github.Outblock:fcl-android:0.05'
+implementation 'com.github.Outblock:fcl-android:0.06'
 
 ```
 
