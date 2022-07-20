@@ -68,14 +68,11 @@ method on the `config` instance needs to be called, the `put` method returns the
 
 Fcl.config(
     appName = "FCLDemo",
-    appIcon = "https://placekitten.com/g/200/200",  
-    location = "https://foo.com",  
-    walletNode = "https://fcl-http-post.vercel.app/api",  
-    accessNode = "https://access-testnet.onflow.org",
-    env = "mainnet",  
-    scope = "email",  
-    authn = WalletProvider.BLOCTO.endpoint.toString(),  
+    appIcon = "https://placekitten.com/g/200/200",
+    location = "https://foo.com",
+    env = FlowNetwork.MAINNET,
 )
+
 ```
 
 ### Common Configuration Keys

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.Fcl
+import io.outblock.fcl.config.FlowNetwork
 import io.outblock.fcl.provider.WalletProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             appName = "FCLDemo",
             appIcon = "https://placekitten.com/g/200/200",
             location = "https://foo.com",
-            env = "mainnet",
+            env = FlowNetwork.MAINNET,
         )
         setupAuth()
         setupSendTransaction()

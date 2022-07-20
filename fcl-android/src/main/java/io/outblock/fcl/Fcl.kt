@@ -4,6 +4,7 @@ import android.os.Looper
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.simpleFlowScript
 import io.outblock.fcl.config.Config
+import io.outblock.fcl.config.FlowNetwork
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.provider.Provider
@@ -36,7 +37,7 @@ object Fcl {
         appName: String,
         appIcon: String,
         location: String,
-        env: String,
+        env: FlowNetwork,
         walletNode: String = "",
         accessNode: String = "",
         scope: String = "",
@@ -48,7 +49,7 @@ object Fcl {
             put(Config.KEY.Location, location)
             put(Config.KEY.Wallet, walletNode)
             put(Config.KEY.AccessNode, accessNode)
-            put(Config.KEY.Env, env)
+            put(Config.KEY.Env, env.network)
             put(Config.KEY.Scope, scope)
             put(Config.KEY.Authn, authn)
         }
@@ -163,7 +164,7 @@ object Fcl {
 
     }
 
-    fun isMainnet(): Boolean = config.get(Config.KEY.Env) == "mainnet"
+    fun isMainnet(): Boolean = config.get(Config.KEY.Env) == FlowNetwork.MAINNET.network
 }
 
 class User(

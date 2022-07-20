@@ -61,3 +61,11 @@ private fun Config.envToChainID(env: String): FlowChainId {
     val id = (if (env.startsWith("flow-")) env else "flow-$env").lowercase()
     return FlowChainId.of(id)
 }
+
+enum class FlowNetwork(val network: String) {
+    MAINNET("mainnet"),
+    TESTNET("testnet"),
+    CANARYNET("canarynet"),
+    EMULATOR("emulator"),
+    UNKNOWN("unknown"),
+}
