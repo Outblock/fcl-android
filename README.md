@@ -114,8 +114,8 @@ val tid = Fcl.mutate {
 	          log(test)   
 	          log(testInt) 
           }
-		}
-		""".trimIndent()
+	}
+	""".trimIndent()
     )
     arg { string("Test2") }
     arg { int(1) }
