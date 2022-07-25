@@ -11,6 +11,8 @@
     <a href="https://github.com/Outblock/fcl-android/issues">Report Bug</a>
     ·
     <a href="">Contribute</a>
+    ·
+    <a href="https://discord.com/channels/911607899795623968/996840274724651028">Discord</a>
  </p>
 
 ## Overview
