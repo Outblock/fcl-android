@@ -157,9 +157,10 @@ private class AuthzBodyInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
 
-        Fcl.config.get("location")?.let {
+        val location = Fcl.config.get("location")
+        if (!location.isNullOrBlank() && !request.url.toString().contains("/authn")) {
             if (request.url.queryParameter("l6n").isNullOrBlank()) {
-                val url = request.url.newBuilder().addQueryParameter("l6n", it).build()
+                val url = request.url.newBuilder().addQueryParameter("l6n", location).build()
                 request = request.newBuilder().url(url).build()
             }
         }

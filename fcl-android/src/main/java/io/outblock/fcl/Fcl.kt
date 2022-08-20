@@ -36,8 +36,8 @@ object Fcl {
     fun config(
         appName: String,
         appIcon: String,
-        location: String,
         env: FlowNetwork,
+        location: String = "",
         walletNode: String = "",
         accessNode: String = "",
         scope: String = "",

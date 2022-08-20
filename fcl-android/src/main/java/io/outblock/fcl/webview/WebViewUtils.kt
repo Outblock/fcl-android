@@ -15,7 +15,11 @@ fun Service.openAuthenticationWebView() {
 
     val uri = Uri.parse(url).buildUpon().apply {
         params?.forEach { appendQueryParameter(it.key, it.value) }
-        appendQueryParameter("l6n", Fcl.config.get(Config.KEY.Location))
+
+        val location = Fcl.config.get(Config.KEY.Location)
+        if (!location.isNullOrEmpty() && Fcl.isMainnet()) {
+            appendQueryParameter("l6n", location)
+        }
     }.build()
     WebViewActivity.launchUrl(context, uri.toString())
 }

@@ -8,8 +8,11 @@ import kotlinx.coroutines.runBlocking
 
 internal class AuthnRequest {
     fun authenticate(provider: Provider): PollingResponse {
-        return runBlocking { execHttpPost(Fcl.providers.get(provider).endpoint.toString() + "authn") }
+        return runBlocking { execHttpPost(endpoint(provider).toString() + "authn") }
     }
+
+    private fun endpoint(provider: Provider) =
+        if (Fcl.isMainnet()) Fcl.providers.get(provider).endpoint else Fcl.providers.get(provider).testNetEndpoint
 
     companion object {
         private const val TAG = "FCLAuthn"
