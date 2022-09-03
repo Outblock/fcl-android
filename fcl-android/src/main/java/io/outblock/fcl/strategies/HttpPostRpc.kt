@@ -1,7 +1,9 @@
-package io.outblock.fcl
+package io.outblock.fcl.strategies
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.outblock.fcl.BuildConfig
+import io.outblock.fcl.Fcl
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.ResponseStatus

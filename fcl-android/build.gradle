@@ -1,16 +1,17 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-//    id 'org.jetbrains.dokka'
+    id 'kotlin-android'
+    id "kotlin-kapt"
+    id("kotlin-parcelize")
     id 'maven-publish'
     id 'signing'
 }
 
 android {
-    compileSdk 29
+    compileSdk 31
 
     defaultConfig {
-        minSdk 21
+        minSdk 23
         targetSdk 28
         versionCode 1
         versionName "0.0.1"
@@ -45,6 +46,8 @@ dependencies {
     api "com.nftco:flow-jvm-sdk:0.7.1"
     implementation 'io.grpc:grpc-okhttp:1.44.0'
     /** FLOW **/
+
+    implementation "com.walletconnect:WalletConnectKotlinV2:2.0.0-rc.3"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

@@ -1,11 +1,11 @@
 package io.outblock.fcl.resolve
 
 import io.outblock.fcl.Fcl
-import io.outblock.fcl.execHttpPost
 import io.outblock.fcl.models.*
 import io.outblock.fcl.models.response.FCLServiceType
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.Service
+import io.outblock.fcl.strategies.execHttpPost
 import io.outblock.fcl.utils.serviceOfType
 
 class AccountsResolver : Resolver {

@@ -1,14 +1,14 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
 }
 
 android {
-    compileSdk 28
+    compileSdk 31
 
     defaultConfig {
         applicationId "io.outblock.fcl.example"
-        minSdk 21
+        minSdk 23
         targetSdk 28
         versionCode 1
         versionName "1.0"

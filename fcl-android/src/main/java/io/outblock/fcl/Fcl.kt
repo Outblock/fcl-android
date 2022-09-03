@@ -14,6 +14,8 @@ import io.outblock.fcl.request.AuthnRequest
 import io.outblock.fcl.request.AuthzSend
 import io.outblock.fcl.request.SignMessageSend
 import io.outblock.fcl.request.builder.FclBuilder
+import io.outblock.fcl.strategies.walletconnect.WalletConnect
+import io.outblock.fcl.strategies.walletconnect.WalletConnectMeta
 import io.outblock.fcl.utils.ioScope
 import kotlinx.coroutines.runBlocking
 
@@ -28,9 +30,9 @@ object Fcl {
     const val version = "@outblock/fcl-android@0.0.1"
 
     init {
-        // TODO add from user
-        providers.add(WalletProvider.DAPPER)
+        providers.add(WalletProvider.LILICO)
         providers.add(WalletProvider.BLOCTO)
+        providers.add(WalletProvider.DAPPER)
     }
 
     fun config(
@@ -38,20 +40,16 @@ object Fcl {
         appIcon: String,
         env: FlowNetwork,
         location: String = "",
-        walletNode: String = "",
-        accessNode: String = "",
-        scope: String = "",
-        authn: String = "",
+        walletConnectMeta: WalletConnectMeta? = null,
     ): Config {
+
+        walletConnectMeta?.let { WalletConnect.init(it) }
+
         return config.apply {
             put(Config.KEY.Title, appName)
             put(Config.KEY.Icon, appIcon)
             put(Config.KEY.Location, location)
-            put(Config.KEY.Wallet, walletNode)
-            put(Config.KEY.AccessNode, accessNode)
             put(Config.KEY.Env, env.network)
-            put(Config.KEY.Scope, scope)
-            put(Config.KEY.Authn, authn)
         }
     }
 

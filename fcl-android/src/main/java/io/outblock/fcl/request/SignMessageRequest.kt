@@ -3,8 +3,8 @@ package io.outblock.fcl.request
 import com.google.gson.annotations.SerializedName
 import com.nftco.flow.sdk.bytesToHex
 import io.outblock.fcl.Fcl
-import io.outblock.fcl.execHttpPost
 import io.outblock.fcl.models.response.FCLServiceType
+import io.outblock.fcl.strategies.execHttpPost
 import io.outblock.fcl.utils.FclError
 import io.outblock.fcl.utils.FclException
 

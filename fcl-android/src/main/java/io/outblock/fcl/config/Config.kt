@@ -20,6 +20,12 @@ class Config {
         Location("location"),
         OpenIDScope("service.OpenID.scopes"),
         DomainTag("fcl.appDomainTag"),
+        WcProjectId("wc.projectId"),
+        WcName("wc.name"),
+        WcDescription("wc.description"),
+        WcUrl("wc.url"),
+        WcIcons("wc.icons"),
+        WcRedirect("wc.redirect")
     }
 
     fun configLens(regex: String): Map<String, String> {

@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.Fcl
-import io.outblock.fcl.config.FlowNetwork
 import io.outblock.fcl.provider.WalletProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,12 +23,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Fcl.config(
-            appName = "FCLDemo",
-            appIcon = "https://placekitten.com/g/200/200",
-            location = "https://foo.com",
-            env = FlowNetwork.MAINNET,
-        )
+
         setupAuth()
         setupSendTransaction()
         setupQuery()
@@ -75,24 +69,17 @@ class MainActivity : AppCompatActivity() {
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
 
         with(tabLayout) {
-            addTab(newTab().apply { text = "Dapper" })
-            val blocto = newTab().apply { text = "Blocto" }
-            addTab(blocto)
-            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab?) {
+            Fcl.providers.all().forEach {
+                val tab = newTab().setText(it.title)
+                addTab(tab)
+                if (it == WalletProvider.BLOCTO) {
+                    selectTab(tab)
                 }
-
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {
-                }
-            })
-            selectTab(blocto)
+            }
         }
 
         findViewById<View>(R.id.auth_button).setOnClickListener {
-            val provider = if (tabLayout.selectedTabPosition == 0) WalletProvider.DAPPER else WalletProvider.BLOCTO
+            val provider = Fcl.providers.all()[tabLayout.selectedTabPosition]
             CoroutineScope(Dispatchers.IO).launch {
                 val auth = Fcl.authenticate(provider)
                 Log.d(TAG, "authenticate complete:$auth")
