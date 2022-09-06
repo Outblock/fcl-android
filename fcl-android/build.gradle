@@ -47,7 +47,7 @@ dependencies {
     implementation 'io.grpc:grpc-okhttp:1.44.0'
     /** FLOW **/
 
-    implementation "com.walletconnect:WalletConnectKotlinV2:2.0.0-rc.3"
+    implementation "com.walletconnect:WalletConnectKotlinV2:2.0.0-rc.4"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
