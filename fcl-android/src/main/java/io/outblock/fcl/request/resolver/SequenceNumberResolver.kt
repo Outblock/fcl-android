@@ -1,4 +1,4 @@
-package io.outblock.fcl.resolve
+package io.outblock.fcl.request.resolver
 
 import com.nftco.flow.sdk.FlowAddress
 import io.outblock.fcl.FlowApi

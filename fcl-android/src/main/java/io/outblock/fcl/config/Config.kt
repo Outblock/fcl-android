@@ -1,7 +1,5 @@
 package io.outblock.fcl.config
 
-import com.nftco.flow.sdk.FlowChainId
-import io.outblock.fcl.FlowApi
 import java.util.regex.Pattern
 
 class Config {
@@ -20,6 +18,8 @@ class Config {
         Location("location"),
         OpenIDScope("service.OpenID.scopes"),
         DomainTag("fcl.appDomainTag"),
+        AppId("appIdentifier"),
+        Nonce("accountProofNonce"),
         WcProjectId("wc.projectId"),
         WcName("wc.name"),
         WcDescription("wc.description"),
@@ -40,9 +40,6 @@ class Config {
 
     fun put(key: String, value: String): Config = apply {
         map[key] = value
-        if (key == "env") {
-            FlowApi.configure(envToChainID(value))
-        }
     }
 
     fun remove(key: KEY): Config = apply { map.remove(key.value) }
@@ -53,25 +50,10 @@ class Config {
     fun data() = map.toMap()
 }
 
-/**
- * Get FlowChainId by env
- * -------------------------
- * flow-mainnet
- * flow-testnet
- * flow-canarynet
- * flow-emulator
- * unknown
- * -------------------------
- */
-private fun Config.envToChainID(env: String): FlowChainId {
-    val id = (if (env.startsWith("flow-")) env else "flow-$env").lowercase()
-    return FlowChainId.of(id)
-}
-
-enum class FlowNetwork(val network: String) {
-    MAINNET("mainnet"),
-    TESTNET("testnet"),
-    CANARYNET("canarynet"),
-    EMULATOR("emulator"),
-    UNKNOWN("unknown"),
-}
+class AppMetadata(
+    val appName: String,
+    val appIcon: String,
+    val location: String = "",
+    val appId: String? = null,
+    val nonce: String? = null,
+)

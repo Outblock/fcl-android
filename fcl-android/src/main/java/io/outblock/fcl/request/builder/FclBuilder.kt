@@ -31,4 +31,8 @@ class FclBuilder {
     fun gasLimit(limit: Int) {
         this.limit = limit
     }
+
+    override fun toString(): String {
+        return "FclBuilder(cadence=$cadence, arguments=${arguments.map { Pair(it.type, it.value) }}, limit=$limit)"
+    }
 }

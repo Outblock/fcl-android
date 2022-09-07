@@ -8,13 +8,9 @@ import io.outblock.fcl.strategies.execHttpPost
 import io.outblock.fcl.utils.FclError
 import io.outblock.fcl.utils.FclException
 
-internal class SignMessageSend {
+internal class SignMessageRequest {
 
-    /**
-     * TODO not support right now
-     */
-    suspend fun sign(message: String): String {
-
+    suspend fun request(message: String): SignMessageResponse {
         val service = Fcl.currentUser?.services?.first { it.type == FCLServiceType.userSignature.value }
             ?: throw FclException(FclError.invaildService)
 
@@ -24,13 +20,28 @@ internal class SignMessageSend {
 
         val response = execHttpPost(endpoint, service.params, signable)
 
-        return ""
+        val data = response.data ?: throw FclException(FclError.invalidResponse)
+
+        return SignMessageResponse(
+            address = data.address,
+            signature = data.signature,
+            keyId = data.keyId,
+        )
     }
 
     companion object {
-        private const val TAG = "FCLAuthn"
+        private const val TAG = "SignMessageSend"
     }
 }
+
+class SignMessageResponse(
+    @SerializedName("addr")
+    val address: String?,
+    @SerializedName("signature")
+    val signature: String?,
+    @SerializedName("keyId")
+    val keyId: Int?,
+)
 
 private class SignableMessage(
     @SerializedName("message")

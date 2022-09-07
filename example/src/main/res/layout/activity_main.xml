@@ -207,7 +207,6 @@
             android:layout_marginHorizontal="14dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:visibility="gone"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -226,10 +225,19 @@
                     android:layout_height="wrap_content"
                     android:autofillHints="username"
                     android:inputType="text"
-                    tools:ignore="LabelFor"/>
+                    android:text="Hello World"
+                    tools:ignore="HardcodedText,LabelFor"/>
 
                 <TextView
                     android:id="@+id/signed_message_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#333"
+                    android:textSize="13sp"
+                    tools:text="asfhjcnaspf0pjanwbpfoihabfpuipabfobaofsbisUFOba"/>
+
+                <TextView
+                    android:id="@+id/signed_message_check"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#333"
@@ -242,6 +250,45 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:text="Sign Message"
+                    android:textAllCaps="false"
+                    app:cornerRadius="12dp"
+                    tools:ignore="HardcodedText"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- account proof -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/account_proof_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#333"
+                    android:textSize="13sp"
+                    tools:text="asfhjcnaspf0pjanwbpfoihabfpuipabfobaofsbisUFOba"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_account_proof"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text="Verify account proof"
                     android:textAllCaps="false"
                     app:cornerRadius="12dp"
                     tools:ignore="HardcodedText"/>

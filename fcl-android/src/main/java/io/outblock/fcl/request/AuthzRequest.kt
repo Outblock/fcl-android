@@ -6,7 +6,7 @@ import io.outblock.fcl.models.Interaction
 import io.outblock.fcl.models.toFclArgument
 import io.outblock.fcl.models.toFlowTransaction
 import io.outblock.fcl.request.builder.FclBuilder
-import io.outblock.fcl.resolve.*
+import io.outblock.fcl.request.resolver.*
 
 internal class AuthzSend {
 

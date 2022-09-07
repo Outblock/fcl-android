@@ -65,6 +65,8 @@ data class PollingData(
     val authorization: List<Service>?,
     @SerializedName("signature")
     val signature: String?,
+    @SerializedName("keyId")
+    val keyId: Int?,
 )
 
 data class Service(
@@ -88,6 +90,8 @@ data class Service(
     val identity: Identity?,
     @SerializedName("provider")
     val provider: Provider?,
+    @SerializedName("data")
+    val data: FCLDataResponse?,
 )
 
 data class LocalService(
@@ -108,6 +112,7 @@ enum class FCLServiceType(val value: String) {
     authz("authz"),
     preAuthz("pre-authz"),
     userSignature("user-signature"),
+    accountProof("account-proof"),
     backChannel("back-channel-rpc"),
     localView("local-view"),
     openID("open-id"),
@@ -138,3 +143,55 @@ class Provider(
     @SerializedName("name")
     val name: String,
 )
+
+class FCLDataResponse(
+    @SerializedName("f_type")
+    val fType: String,
+    @SerializedName("f_vsn")
+    val fVsn: String,
+    @SerializedName("nonce")
+    val nonce: String?,
+    @SerializedName("address")
+    val address: String?,
+    @SerializedName("signatures")
+    val signatures: List<Signature>?,
+) {
+    class Signature(
+        @SerializedName("addr")
+        val address: String?,
+        @SerializedName("signature")
+        val signature: String?,
+        @SerializedName("keyId")
+        val keyId: Int?,
+    )
+}
+
+// some wallet's data is array
+data class PollingResponseArrayDataFix(
+    @SerializedName("status")
+    val status: ResponseStatus,
+    @SerializedName("data")
+    val data: List<PollingData>?,
+    @SerializedName("updates")
+    val updates: Service?,
+    @SerializedName("local")
+    val local: Any?,
+    @SerializedName("reason")
+    val reason: String?,
+    @SerializedName("compositeSignature")
+    val compositeSignature: PollingData?,
+    @SerializedName("authorizationUpdates")
+    var authorizationUpdates: Service?,
+) {
+    fun toPollingResponse(): PollingResponse {
+        return PollingResponse(
+            status = status,
+            data = data?.firstOrNull(),
+            updates = updates,
+            local = local,
+            reason = reason,
+            compositeSignature = compositeSignature,
+            authorizationUpdates = authorizationUpdates,
+        )
+    }
+}

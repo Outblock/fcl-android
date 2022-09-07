@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.provider.WalletProvider
+import io.outblock.fcl.utils.verifyUserSignature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         setupSendTransaction()
         setupQuery()
         setupSignMessage()
+        setupAccountProof()
     }
 
     @SuppressLint("SetTextI18n")
@@ -59,8 +61,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.button_sign_message).setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 val message = findViewById<EditText>(R.id.sign_message_edittext).text.toString()
-                val signature = Fcl.signMessage(message)
-                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_view).text = signature }
+                val response = Fcl.signMessage(message)
+                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_view).text = response.signature }
+                val check = Fcl.verifyUserSignature(message, listOf(response))
+                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_check).text = "$check" }
             }
         }
     }
@@ -128,6 +132,17 @@ class MainActivity : AppCompatActivity() {
                             this@MainActivity
                         )
                     }
+                }
+            }
+        }
+    }
+
+    private fun setupAccountProof() {
+        findViewById<View>(R.id.button_account_proof).setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val result = Fcl.verifyAccountProof(false)
+                CoroutineScope(Dispatchers.Main).launch {
+                    findViewById<TextView>(R.id.account_proof_check).text = "$result"
                 }
             }
         }

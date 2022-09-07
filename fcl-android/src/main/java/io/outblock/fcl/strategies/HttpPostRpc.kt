@@ -1,11 +1,11 @@
 package io.outblock.fcl.strategies
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.google.gson.*
 import io.outblock.fcl.BuildConfig
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.config.Config
 import io.outblock.fcl.models.response.PollingResponse
+import io.outblock.fcl.models.response.PollingResponseArrayDataFix
 import io.outblock.fcl.models.response.ResponseStatus
 import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.utils.FclError
@@ -27,6 +27,7 @@ import okio.Buffer
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.lang.reflect.Type
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
@@ -63,7 +64,9 @@ private interface RetrofitAuthApi {
 private fun retrofitAuthApi(url: String? = null): RetrofitAuthApi {
     val client = okHttpClient()
 
-    return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+    val gson = GsonBuilder().registerTypeAdapter(PollingResponse::class.java, PollingResponseDeserializer()).setLenient().create()
+
+    return Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson))
         .baseUrl(url ?: "https://google.com")
         .client(client).build().create(RetrofitAuthApi::class.java)
 }
@@ -214,4 +217,17 @@ private fun RequestBody?.string(): String? {
 
     val charset: Charset = contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
     return buffer.readString(charset)
+}
+
+private class PollingResponseDeserializer : JsonDeserializer<PollingResponse> {
+    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): PollingResponse {
+        val obj = json.asJsonObject
+
+        val data = obj.get("data")
+        if (data != null && data.isJsonArray) {
+            return Gson().fromJson(json, PollingResponseArrayDataFix::class.java).toPollingResponse()
+        }
+
+        return Gson().fromJson(json, PollingResponse::class.java)
+    }
 }

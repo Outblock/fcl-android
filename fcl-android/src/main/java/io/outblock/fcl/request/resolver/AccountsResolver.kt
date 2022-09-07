@@ -1,4 +1,4 @@
-package io.outblock.fcl.resolve
+package io.outblock.fcl.request.resolver
 
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.models.*

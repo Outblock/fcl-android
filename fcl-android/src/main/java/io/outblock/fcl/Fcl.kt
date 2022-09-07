@@ -3,20 +3,19 @@ package io.outblock.fcl
 import android.os.Looper
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.simpleFlowScript
+import io.outblock.fcl.config.AppMetadata
 import io.outblock.fcl.config.Config
-import io.outblock.fcl.config.FlowNetwork
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.Service
 import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.provider.Providers
 import io.outblock.fcl.provider.WalletProvider
-import io.outblock.fcl.request.AuthnRequest
-import io.outblock.fcl.request.AuthzSend
-import io.outblock.fcl.request.SignMessageSend
+import io.outblock.fcl.request.*
 import io.outblock.fcl.request.builder.FclBuilder
 import io.outblock.fcl.strategies.walletconnect.WalletConnect
 import io.outblock.fcl.strategies.walletconnect.WalletConnectMeta
 import io.outblock.fcl.utils.ioScope
+import io.outblock.fcl.utils.logd
 import kotlinx.coroutines.runBlocking
 
 object Fcl {
@@ -36,20 +35,23 @@ object Fcl {
     }
 
     fun config(
-        appName: String,
-        appIcon: String,
-        env: FlowNetwork,
-        location: String = "",
+        appMetadata: AppMetadata,
+        env: FlowEnvironment,
         walletConnectMeta: WalletConnectMeta? = null,
     ): Config {
 
         walletConnectMeta?.let { WalletConnect.init(it) }
 
         return config.apply {
-            put(Config.KEY.Title, appName)
-            put(Config.KEY.Icon, appIcon)
-            put(Config.KEY.Location, location)
-            put(Config.KEY.Env, env.network)
+            with(appMetadata) {
+                put(Config.KEY.Title, appName)
+                put(Config.KEY.Icon, appIcon)
+                put(Config.KEY.Location, location)
+                appId?.let { put(Config.KEY.AppId, it) }
+                nonce?.let { put(Config.KEY.Nonce, it) }
+            }
+            put(Config.KEY.Env, env.network.network)
+            FlowApi.configure(env)
         }
     }
 
@@ -134,6 +136,8 @@ object Fcl {
 
         assert(!outBuilder.cadence.isNullOrBlank()) { "Script is empty" }
 
+        logd("Fcl query", outBuilder)
+
         val response = FlowApi.get().simpleFlowScript {
             script { outBuilder.cadence!! }
             outBuilder.arguments.forEach { arg { it } }
@@ -141,13 +145,16 @@ object Fcl {
         return String(response.bytes)
     }
 
-    /**
-     * TODO : not support right now
-     */
-    fun signMessage(message: String): String {
+    fun signMessage(message: String): SignMessageResponse {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
 
-        return runBlocking { SignMessageSend().sign(message) }
+        return runBlocking { SignMessageRequest().request(message) }
+    }
+
+    fun verifyAccountProof(includeDomainTag: Boolean = false): Boolean {
+        assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
+
+        return runBlocking { AccountProofRequest().request(includeDomainTag) }
     }
 
     fun unauthenticate() {
