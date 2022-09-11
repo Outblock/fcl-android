@@ -2,7 +2,7 @@ package io.outblock.fcl.provider
 
 import java.net.URL
 
-enum class ServiceMethod(method: String) {
+enum class ServiceMethod(val value: String) {
     HTTP_RPC("HTTP/RPC"),
     HTTP_POST("HTTP/POST"),
     IFRAME_RPC("IFRAME/RPC"),
@@ -10,6 +10,13 @@ enum class ServiceMethod(method: String) {
     TAB_RPC("TAB/RPC"),
     EXT_RPC("EXT/RPC"),
     WC_RPC("WC/RPC"),
+}
+
+internal fun String?.toMethod(): ServiceMethod {
+    if (this.isNullOrBlank()) {
+        return ServiceMethod.HTTP_POST
+    }
+    return ServiceMethod.valueOf(this)
 }
 
 interface Provider {

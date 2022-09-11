@@ -8,7 +8,7 @@ import io.outblock.fcl.utils.loge
 
 private const val TAG = "WalletConnectDappDelegate"
 
-class WalletConnectDappDelegate : SignClient.DappDelegate {
+internal class WalletConnectDappDelegate : SignClient.DappDelegate {
 
     override fun onConnectionStateChange(state: Sign.Model.ConnectionState) {
         logd(TAG, "onConnectionStateChange() state:$state")

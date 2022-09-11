@@ -5,7 +5,7 @@ import io.outblock.fcl.models.*
 import io.outblock.fcl.models.response.FCLServiceType
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.models.response.Service
-import io.outblock.fcl.strategies.execHttpPost
+import io.outblock.fcl.strategies.executeStrategies
 import io.outblock.fcl.utils.serviceOfType
 
 class AccountsResolver : Resolver {
@@ -23,11 +23,10 @@ class AccountsResolver : Resolver {
         assert(currentUser.loggedIn, lazyMessage = { "FCL unauthenticated" })
 
         val service = currentUser.services.serviceOfType(FCLServiceType.preAuthz) ?: throw RuntimeException("missing preAuthz")
-        val endpoint = service.endpoint ?: throw RuntimeException("missing preAuthz")
 
         val preSignable = ix.buildPreSignable(Roles())
 
-        val response = execHttpPost(endpoint, service.params, data = preSignable)
+        val response = service.executeStrategies(data = preSignable)
 
         val signableUsers = response.getAccounts()
         val accounts = mutableMapOf<String, SignableUser>()
@@ -86,9 +85,8 @@ class AccountsResolver : Resolver {
                         payer = role == "PAYER",
                     )
                 ) { data ->
-                    val endpoint = service.endpoint ?: throw RuntimeException("endpoint is null")
-                    val params = service.params ?: throw RuntimeException("params is null")
-                    execHttpPost(endpoint, params = params, data = data)
+                    service.params ?: throw RuntimeException("params is null")
+                    service.executeStrategies(data = data)
                 }
             }
         }
