@@ -6,27 +6,30 @@ import com.walletconnect.sign.client.Sign
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.utils.FclError
 import io.outblock.fcl.utils.FclException
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 internal fun dispatchWcRequestResponse(response: Sign.Model.SessionRequestResponse) {
     when (response.method) {
-        "flow_authn" -> response.dispatchAuthn()
-        "flow_authz" -> response.dispatchAuthz()
+        WalletConnectMethod.AUTHN.value -> response.dispatch(authnHook) { releaseAuthnHook() }
+        WalletConnectMethod.AUTHZ.value -> response.dispatch(authzHook) { releaseAuthzHook() }
+        WalletConnectMethod.PRE_AUTHZ.value -> response.dispatch(preAuthzHook) { releasePreAuthzHook() }
+        WalletConnectMethod.SIGN_PROPOSER.value -> response.dispatch(signProposerHook) { releaseSignProposerHook() }
+        WalletConnectMethod.SIGN_PAYER.value -> response.dispatch(signPayerHook) { releaseSignPayerHook() }
     }
 }
 
-private fun Sign.Model.SessionRequestResponse.dispatchAuthn() {
+private fun Sign.Model.SessionRequestResponse.pollingResponse(): PollingResponse {
+    val json = String((result as Sign.Model.JsonRpcResponse.JsonRpcResult).result.hexToBytes())
+    return Gson().fromJson(json, PollingResponse::class.java)
+}
+
+private fun Sign.Model.SessionRequestResponse.dispatch(hook: Continuation<PollingResponse>?, callback: () -> Unit) {
     try {
-        val json = String((result as Sign.Model.JsonRpcResponse.JsonRpcResult).result.hexToBytes())
-        val response = Gson().fromJson(json, PollingResponse::class.java)
-        authnHook?.resume(response)
+        hook?.resume(pollingResponse())
     } catch (e: Exception) {
-        authnHook?.resumeWithException(FclException(FclError.fetchAccountFailure, exception = e))
+        hook?.resumeWithException(FclException(FclError.invaildService, exception = e))
     }
-    releaseAuthnHook()
-}
-
-private fun Sign.Model.SessionRequestResponse.dispatchAuthz() {
-
+    callback()
 }

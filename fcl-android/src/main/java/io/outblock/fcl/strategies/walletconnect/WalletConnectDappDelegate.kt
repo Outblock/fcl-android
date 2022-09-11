@@ -23,15 +23,13 @@ internal class WalletConnectDappDelegate : SignClient.DappDelegate {
     override fun onSessionApproved(approvedSession: Sign.Model.ApprovedSession) {
         logd(TAG, "onSessionApproved() approvedSession:$approvedSession")
         logd(TAG, "onSessionApproved() approvedSession:${Gson().toJson(approvedSession)}")
-        val account = approvedSession.namespaces["flow"]!!.accounts.first()
-        val chainId = account.replaceAfterLast(":", "").removeSuffix(":")
-        val address = account.replaceBeforeLast(":", "").removePrefix(":")
+        updateWalletConnectSession(approvedSession)
         SignClient.request(
             Sign.Params.Request(
                 sessionTopic = approvedSession.topic,
-                method = "flow_authn",
-                params = """[{"addr":"$address"}]""",
-                chainId = chainId,
+                method = WalletConnectMethod.AUTHN.value,
+                params = """[{"addr":"${approvedSession.address()}"}]""",
+                chainId = approvedSession.chainId(),
             )
         ) { error -> loge(error.throwable) }
     }

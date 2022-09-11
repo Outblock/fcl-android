@@ -2,6 +2,7 @@ package io.outblock.fcl.strategies.walletconnect
 
 import android.content.Intent
 import android.net.Uri
+import com.google.gson.Gson
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import io.outblock.fcl.Fcl
@@ -18,11 +19,12 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * open wc app(lilico), pair
  */
-internal fun launchDeeplink(uri: String) {
+internal fun launchDeeplink(uri: String?) {
     val context = LifecycleObserver.context() ?: throw FclException(FclError.invaildContext)
     val host = WalletConnect.get().meta()?.url ?: throw FclException(FclError.invaildURL)
     context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-        data = Uri.parse("${host.removeSuffix("/")}?uri=${URLEncoder.encode(uri, "UTF-8")}")
+        val param = if (uri.isNullOrBlank()) "" else "?uri=${URLEncoder.encode(uri, "UTF-8")}"
+        data = Uri.parse("${host.removeSuffix("/")}$param")
     })
 }
 
@@ -59,9 +61,38 @@ internal suspend fun wcPairInternal(uri: String) = suspendCoroutine<PollingRespo
 }
 
 internal suspend fun executeWcRpc(
-    url: String,
+    endpoint: String,
     params: Map<String, String>? = mapOf(),
     data: Any? = null,
-): PollingResponse {
+) = suspendCoroutine<PollingResponse> { continuation ->
+    val session = currentWcSession() ?: throw FclException(FclError.unauthenticated)
+    val requestParams = Sign.Params.Request(
+        sessionTopic = requireNotNull(session.topic),
+        method = endpoint,
+        params = Gson().toJson(data),
+        chainId = session.chainId()
+    )
 
+    when (endpoint) {
+        WalletConnectMethod.AUTHZ.value -> bindAuthzHook(continuation)
+        WalletConnectMethod.PRE_AUTHZ.value -> bindPreAuthzHook(continuation)
+        WalletConnectMethod.USER_SIGN.value -> bindUserSignHook(continuation)
+        WalletConnectMethod.SIGN_PROPOSER.value -> bindSignProposerHook(continuation)
+        WalletConnectMethod.SIGN_PAYER.value -> bindSignPayerHook(continuation)
+    }
+
+    SignClient.request(requestParams) { error ->
+        continuation.resumeWithException(
+            FclException(
+                FclError.invaildService,
+                exception = error.throwable
+            )
+        )
+    }
+
+    if (authMethod.contains(endpoint)) {
+        launchDeeplink("")
+    }
 }
+
+private val authMethod by lazy { listOf(WalletConnectMethod.AUTHZ.value, WalletConnectMethod.SIGN_PROPOSER.value) }

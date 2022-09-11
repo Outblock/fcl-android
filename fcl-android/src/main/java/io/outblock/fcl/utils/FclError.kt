@@ -2,7 +2,7 @@ package io.outblock.fcl.utils
 
 class FclException(
     private val error: FclError,
-    private val exception: Exception? = null,
+    private val exception: Throwable? = null,
 ) : Exception(error.value) {
 
     init {
