@@ -32,17 +32,18 @@ class FclApplication : Application() {
             nonce = "75f8587e5bd5f9dcc9909d0dae1f0ac5814458b2ae129620502cb936fde7120a",
         )
 
+        val walletConnectMeta = WalletConnectMeta(
+            projectId = "29b38ec12be4bd19bf03d7ccef29aaa6",
+            name = "FCL Android Wallet Connect Test",
+            description = "Dapp description",
+            url = "https://link.lilico.app",
+            icon = "https://lilico.app/logo.png",
+            redirect = "https://google.com",
+        )
         Fcl.config(
             appMetadata = appMetadata,
             env = environment,
-            walletConnectMeta = WalletConnectMeta(
-                projectId = "29b38ec12be4bd19bf03d7ccef29aaa6",
-                name = "FCL Wallet Connect Test",
-                description = "Dapp description",
-                url = "https://lilico.app",
-                icon = "https://lilico.app/logo.png",
-                redirect = "https://google.com",
-            )
+            walletConnectMeta = walletConnectMeta
         )
     }
 }

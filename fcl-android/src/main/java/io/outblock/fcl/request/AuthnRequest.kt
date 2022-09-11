@@ -8,12 +8,15 @@ import io.outblock.fcl.provider.Provider
 import io.outblock.fcl.provider.ServiceMethod
 import io.outblock.fcl.strategies.execHttpPost
 import io.outblock.fcl.strategies.walletconnect.WalletConnect
+import io.outblock.fcl.utils.FclError
+import io.outblock.fcl.utils.FclException
 import kotlinx.coroutines.runBlocking
 
 internal class AuthnRequest {
     fun authenticate(provider: Provider): PollingResponse {
         if (provider.method == ServiceMethod.WC_RPC) {
-            runBlocking { WalletConnect.get().connect() }
+            val uri = runBlocking { WalletConnect.get().pairUri() } ?: throw FclException(FclError.fetchAccountFailure)
+            return runBlocking { WalletConnect.get().pair(uri) } ?: throw FclException(FclError.fetchAccountFailure)
         }
 
         val model = AuthnRequestModel(

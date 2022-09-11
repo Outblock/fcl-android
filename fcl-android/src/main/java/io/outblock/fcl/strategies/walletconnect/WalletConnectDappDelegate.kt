@@ -59,6 +59,7 @@ class WalletConnectDappDelegate : SignClient.DappDelegate {
     override fun onSessionRequestResponse(response: Sign.Model.SessionRequestResponse) {
         logd(TAG, "onSessionRequestResponse() response:$response")
         logd(TAG, "onSessionRequestResponse() response:${Gson().toJson(response)}")
+        dispatchWcRequestResponse(response)
     }
 
     override fun onSessionUpdate(updatedSession: Sign.Model.UpdatedSession) {
