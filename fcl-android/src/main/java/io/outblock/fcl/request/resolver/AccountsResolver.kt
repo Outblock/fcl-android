@@ -22,7 +22,7 @@ class AccountsResolver : Resolver {
         val currentUser = Fcl.currentUser ?: throw RuntimeException("FCL unauthenticated")
         assert(currentUser.loggedIn, lazyMessage = { "FCL unauthenticated" })
 
-        val service = currentUser.services.serviceOfType(FCLServiceType.preAuthz) ?: return
+        val service = currentUser.services.serviceOfType(FCLServiceType.preAuthz) ?: throw RuntimeException("missing preAuthz")
 
         val preSignable = ix.buildPreSignable(Roles())
 

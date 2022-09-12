@@ -6,5 +6,6 @@ enum class WalletConnectMethod(val value: String) {
     PRE_AUTHZ("flow_pre_authz"),
     SIGN_PAYER("flow_sign_payer"),
     SIGN_PROPOSER("flow_sign_proposer"),
-    USER_SIGN("flow_user_sign"),
+    USER_SIGNATURE("flow_user_sign"),
+    ACCOUNT_PROOF("flow_account_proof"),
 }

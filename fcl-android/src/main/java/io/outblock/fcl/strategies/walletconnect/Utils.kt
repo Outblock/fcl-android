@@ -17,6 +17,7 @@ internal fun dispatchWcRequestResponse(response: Sign.Model.SessionRequestRespon
         WalletConnectMethod.PRE_AUTHZ.value -> response.dispatch(preAuthzHook) { releasePreAuthzHook() }
         WalletConnectMethod.SIGN_PROPOSER.value -> response.dispatch(signProposerHook) { releaseSignProposerHook() }
         WalletConnectMethod.SIGN_PAYER.value -> response.dispatch(signPayerHook) { releaseSignPayerHook() }
+        WalletConnectMethod.USER_SIGNATURE.value -> response.dispatch(userSignHook) { releaseUserSignHook() }
     }
 }
 

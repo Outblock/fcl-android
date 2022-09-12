@@ -69,14 +69,14 @@ internal suspend fun executeWcRpc(
     val requestParams = Sign.Params.Request(
         sessionTopic = requireNotNull(session.topic),
         method = endpoint,
-        params = Gson().toJson(data),
+        params = "[${Gson().toJson(data)}]",
         chainId = session.chainId()
     )
 
     when (endpoint) {
         WalletConnectMethod.AUTHZ.value -> bindAuthzHook(continuation)
         WalletConnectMethod.PRE_AUTHZ.value -> bindPreAuthzHook(continuation)
-        WalletConnectMethod.USER_SIGN.value -> bindUserSignHook(continuation)
+        WalletConnectMethod.USER_SIGNATURE.value -> bindUserSignHook(continuation)
         WalletConnectMethod.SIGN_PROPOSER.value -> bindSignProposerHook(continuation)
         WalletConnectMethod.SIGN_PAYER.value -> bindSignPayerHook(continuation)
     }
@@ -95,4 +95,10 @@ internal suspend fun executeWcRpc(
     }
 }
 
-private val authMethod by lazy { listOf(WalletConnectMethod.AUTHZ.value, WalletConnectMethod.SIGN_PROPOSER.value) }
+private val authMethod by lazy {
+    listOf(
+        WalletConnectMethod.AUTHZ.value,
+        WalletConnectMethod.SIGN_PROPOSER.value,
+        WalletConnectMethod.USER_SIGNATURE.value,
+    )
+}

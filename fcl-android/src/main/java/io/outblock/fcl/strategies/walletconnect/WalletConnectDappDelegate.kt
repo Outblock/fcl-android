@@ -3,6 +3,8 @@ package io.outblock.fcl.strategies.walletconnect
 import com.google.gson.Gson
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
+import io.outblock.fcl.Fcl
+import io.outblock.fcl.config.Config
 import io.outblock.fcl.utils.logd
 import io.outblock.fcl.utils.loge
 
@@ -24,11 +26,18 @@ internal class WalletConnectDappDelegate : SignClient.DappDelegate {
         logd(TAG, "onSessionApproved() approvedSession:$approvedSession")
         logd(TAG, "onSessionApproved() approvedSession:${Gson().toJson(approvedSession)}")
         updateWalletConnectSession(approvedSession)
+        val params = mapOf(
+            "addr" to approvedSession.address(),
+            "data" to mapOf(
+                "nonce" to Fcl.config.get(Config.KEY.Nonce),
+                "appIdentifier" to Fcl.config.get(Config.KEY.AppId),
+            ),
+        )
         SignClient.request(
             Sign.Params.Request(
                 sessionTopic = approvedSession.topic,
                 method = WalletConnectMethod.AUTHN.value,
-                params = """[{"addr":"${approvedSession.address()}"}]""",
+                params = "[${Gson().toJson(params)}]",
                 chainId = approvedSession.chainId(),
             )
         ) { error -> loge(error.throwable) }
