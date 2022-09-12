@@ -63,7 +63,7 @@ private fun setup(application: Application, meta: WalletConnectMeta) {
             description = meta.description,
             url = meta.url,
             icons = listOf(meta.icon),
-            redirect = meta.redirect,
+            redirect = "${application.packageName}\$fromSdk",
         )
     )
 
@@ -80,5 +80,4 @@ data class WalletConnectMeta(
     val description: String,
     val url: String,
     val icon: String,
-    val redirect: String,
 )

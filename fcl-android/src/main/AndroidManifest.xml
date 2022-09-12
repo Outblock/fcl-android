@@ -10,8 +10,8 @@
             android:launchMode="singleTop"/>
 
         <provider
-            android:authorities="io.outblock.fcl.context"
             android:name="io.outblock.fcl.lifecycle.FCLContentProvider"
+            android:authorities="io.outblock.fcl.context"
             android:exported="false"/>
     </application>
 </manifest>

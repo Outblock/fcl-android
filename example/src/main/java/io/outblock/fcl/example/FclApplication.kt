@@ -38,7 +38,6 @@ class FclApplication : Application() {
             description = "Dapp description",
             url = "https://link.lilico.app",
             icon = "https://lilico.app/logo.png",
-            redirect = "https://google.com",
         )
         Fcl.config(
             appMetadata = appMetadata,
