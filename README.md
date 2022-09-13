@@ -29,12 +29,12 @@ This reference documents all the methods available in the SDK, and explains in d
 - [x] Send transaction with non-custodial mode (Blocto)
 - [x] Send transaction with custodial wallet
 - [x] Support all access api endpoint such as `GetAccount` and `GetLastestBlock`
+- [x] Sign user message
+- [x] Verify user signature
+- [x] Publish to maven center
 
 #### Todo list:
-- [ ] Sign user message
-- [ ] Verify user signature
 - [ ] Support custom `authz` function
-- [ ] Publish to maven center
 
 ## Getting Started
 
