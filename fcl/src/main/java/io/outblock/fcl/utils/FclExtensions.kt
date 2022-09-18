@@ -1,5 +1,6 @@
 package io.outblock.fcl.utils
 
+import android.os.Looper
 import androidx.annotation.WorkerThread
 import com.nftco.flow.sdk.FlowBlock
 import com.nftco.flow.sdk.bytesToHex
@@ -18,6 +19,9 @@ fun Fcl.getLatestBlock(sealed: Boolean = true): FlowBlock {
 
 @WorkerThread
 fun Fcl.verifyUserSignature(message: String, signatures: List<SignMessageResponse>): Boolean {
+    assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
+    currentUser ?: throw FclException(FclError.unauthenticated)
+
     val result = query {
         cadence(CADENCE_VERIFY_USER_SIGNATURE)
         arg { address(signatures.firstOrNull()?.address.orEmpty()) }

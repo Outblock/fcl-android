@@ -11,6 +11,7 @@ import io.outblock.fcl.utils.FclException
 internal class SignMessageRequest {
 
     suspend fun request(message: String): SignMessageResponse {
+        Fcl.currentUser ?: throw FclException(FclError.unauthenticated)
         val service = Fcl.currentUser?.services?.first { it.type == FCLServiceType.userSignature.value }
             ?: throw FclException(FclError.invaildService)
 

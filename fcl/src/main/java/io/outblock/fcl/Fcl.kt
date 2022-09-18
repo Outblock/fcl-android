@@ -161,7 +161,6 @@ object Fcl {
 
     fun verifyAccountProof(includeDomainTag: Boolean = false): FclResult<Boolean> {
         assert(Thread.currentThread() != Looper.getMainLooper().thread) { "can't call this method in main thread." }
-
         return processResult {
             runBlocking { AccountProofRequest().request(includeDomainTag) }
         }
