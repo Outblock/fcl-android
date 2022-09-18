@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.bytesToHex
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.FlowApi
 import io.outblock.fcl.cadence.CADENCE_VERIFY_USER_SIGNATURE
+import io.outblock.fcl.models.FclResult
 import io.outblock.fcl.request.SignMessageResponse
 import io.outblock.fcl.utils.parse.parseFclResultBool
 
@@ -25,5 +26,8 @@ fun Fcl.verifyUserSignature(message: String, signatures: List<SignMessageRespons
         arg { array { signatures.map { string(it.signature.orEmpty()) } } }
     }
 
-    return result.parseFclResultBool() ?: false
+    return when (result) {
+        is FclResult.Success -> result.value.parseFclResultBool() ?: false
+        else -> false
+    }
 }

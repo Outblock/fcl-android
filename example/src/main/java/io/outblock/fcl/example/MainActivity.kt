@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import io.outblock.fcl.Fcl
+import io.outblock.fcl.models.FclResult
 import io.outblock.fcl.provider.WalletProvider
 import io.outblock.fcl.utils.verifyUserSignature
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +53,12 @@ class MainActivity : AppCompatActivity() {
                     arg { int(3) }
                     arg { address("0xba1132bc08f82fe2") }
                 }
-                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.query_result_view).text = result }
+                when (result) {
+                    is FclResult.Success -> CoroutineScope(Dispatchers.Main).launch {
+                        findViewById<TextView>(R.id.query_result_view).text = result.value
+                    }
+                    is FclResult.Failure -> result.toast(this@MainActivity)
+                }
             }
         }
     }
@@ -61,10 +67,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.button_sign_message).setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 val message = findViewById<EditText>(R.id.sign_message_edittext).text.toString()
-                val response = Fcl.signMessage(message)
-                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_view).text = response.signature }
-                val check = Fcl.verifyUserSignature(message, listOf(response))
-                CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_check).text = "$check" }
+                when (val result = Fcl.signMessage(message)) {
+                    is FclResult.Success -> {
+                        CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_view).text = result.value.signature }
+                        val check = Fcl.verifyUserSignature(message, listOf(result.value))
+                        CoroutineScope(Dispatchers.Main).launch { findViewById<TextView>(R.id.signed_message_check).text = "$check" }
+                    }
+                    is FclResult.Failure -> result.toast(this@MainActivity)
+                }
             }
         }
     }
@@ -85,11 +95,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.auth_button).setOnClickListener {
             val provider = Fcl.providers.all()[tabLayout.selectedTabPosition]
             CoroutineScope(Dispatchers.IO).launch {
-                val auth = Fcl.authenticate(provider)
-                Log.d(TAG, "authenticate complete:$auth")
-                CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(this@MainActivity, "authenticate complete", Toast.LENGTH_SHORT).show()
-                    findViewById<TextView>(R.id.address).text = auth.data?.address
+                when (val result = Fcl.authenticate(provider)) {
+                    is FclResult.Success -> CoroutineScope(Dispatchers.Main).launch {
+                        Toast.makeText(this@MainActivity, "authenticate complete", Toast.LENGTH_SHORT).show()
+                        findViewById<TextView>(R.id.address).text = result.value.data?.address
+                    }
+                    is FclResult.Failure -> result.toast(this@MainActivity)
                 }
             }
         }
@@ -117,21 +128,24 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                val tid = Fcl.mutate {
+                val result = Fcl.mutate {
                     cadence(editText.text.toString())
                     arg { string("Test2") }
                     arg { int(1) }
                     gasLimit(1000)
                 }
-                Log.d(TAG, "tid:$tid")
-                CoroutineScope(Dispatchers.Main).launch {
-                    txidView.text = tid
-                    txidLayout.visibility = View.VISIBLE
-                    viewOnFlowScanView.setOnClickListener {
-                        "https://${if (Fcl.isMainnet()) "" else "testnet."}flowscan.org/transaction/$tid".openInSystemBrowser(
-                            this@MainActivity
-                        )
+                Log.d(TAG, "tid:$result")
+                when (result) {
+                    is FclResult.Success -> CoroutineScope(Dispatchers.Main).launch {
+                        txidView.text = result.value
+                        txidLayout.visibility = View.VISIBLE
+                        viewOnFlowScanView.setOnClickListener {
+                            "https://${if (Fcl.isMainnet()) "" else "testnet."}flowscan.org/transaction/$result".openInSystemBrowser(
+                                this@MainActivity
+                            )
+                        }
                     }
+                    is FclResult.Failure -> result.toast(this@MainActivity)
                 }
             }
         }
@@ -140,9 +154,11 @@ class MainActivity : AppCompatActivity() {
     private fun setupAccountProof() {
         findViewById<View>(R.id.button_account_proof).setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                val result = Fcl.verifyAccountProof(false)
-                CoroutineScope(Dispatchers.Main).launch {
-                    findViewById<TextView>(R.id.account_proof_check).text = "$result"
+                when (val result = Fcl.verifyAccountProof(false)) {
+                    is FclResult.Success -> CoroutineScope(Dispatchers.Main).launch {
+                        findViewById<TextView>(R.id.account_proof_check).text = "${result.value}"
+                    }
+                    is FclResult.Failure -> result.toast(this@MainActivity)
                 }
             }
         }

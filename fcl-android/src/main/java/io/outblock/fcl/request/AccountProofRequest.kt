@@ -7,6 +7,7 @@ import com.nftco.flow.sdk.hexToBytes
 import io.outblock.fcl.Fcl
 import io.outblock.fcl.cadence.CADENCE_VERIFY_ACCOUNT_PROOF
 import io.outblock.fcl.config.Config
+import io.outblock.fcl.models.FclResult
 import io.outblock.fcl.models.response.FCLServiceType
 import io.outblock.fcl.utils.FclError
 import io.outblock.fcl.utils.FclException
@@ -36,14 +37,18 @@ internal class AccountProofRequest {
             accountProofTag + rpl
         } else rpl
 
-        return Fcl.query {
+        val result = Fcl.query {
             cadence(CADENCE_VERIFY_ACCOUNT_PROOF)
 
             arg { address(FlowAddress(address.addAddressPrefix())) }
             arg { string(encoded.bytesToHex()) }
             arg { array(signatures.map { int(it.keyId ?: -1) }) }
             arg { array(signatures.map { string(it.signature.orEmpty()) }) }
-        }.parseFclResultBool() ?: false
+        }
+        return when (result) {
+            is FclResult.Success -> result.value.parseFclResultBool() ?: false
+            else -> false
+        }
     }
 
     companion object {

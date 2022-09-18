@@ -1,8 +1,8 @@
 package io.outblock.fcl.utils
 
 class FclException(
-    private val error: FclError,
-    private val exception: Throwable? = null,
+    val error: FclError,
+    val exception: Throwable? = null,
 ) : Exception(error.value) {
 
     init {
@@ -11,11 +11,11 @@ class FclException(
 }
 
 enum class FclError(val value: String) {
-    generic("generic"),
+    declined("declined"),
     invaildURL("invaildURL"),
+    generic("generic"),
     invaildService("invaildService"),
     invalidSession("invalidSession"),
-    declined("declined"),
     invalidResponse("invalidResponse"),
     decodeFailure("decodeFailure"),
     unauthenticated("unauthenticated"),
