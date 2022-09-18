@@ -167,18 +167,6 @@ object Fcl {
         }
     }
 
-    fun unauthenticate() {
-
-    }
-
-    fun reauthenticate() {
-
-    }
-
-    fun authorization() {
-
-    }
-
     fun isMainnet(): Boolean = config.get(Config.KEY.Env) == FlowNetwork.MAINNET.network
 }
 

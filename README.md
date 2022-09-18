@@ -69,10 +69,10 @@ method on the `config` instance needs to be called, the `put` method returns the
 ```kotlin
 
 Fcl.config(
-    appName = "FCLDemo",
-    appIcon = "https://placekitten.com/g/200/200",
-    location = "https://foo.com",
-    env = FlowNetwork.MAINNET,
+    appMetadata = AppMetadata(),
+    env = FlowEnvironment(),
+    // Not required: only required if you use the wallet connect function
+    walletConnectMeta = WalletConnectMeta()
 )
 
 ```
@@ -96,8 +96,7 @@ Calling this method will authenticate the current user via any wallet that suppo
 Fcl.authenticate(WalletProvider.DAPPER)
 ```
 
-
-### `authz`
+### `mutate`
 A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a user's wallet provider to produce signatures to submit transactions.
 
 #### Usage
