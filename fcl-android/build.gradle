@@ -63,7 +63,7 @@ afterEvaluate {
                 artifactId 'android'
 //                artifact(tasks["dokkaJavadoc"])
 //                artifact(dokkaHtmlJar)
-                version = "0.0.2"
+                version = "0.0.8"
 
                 pom {
                     name = artifactId
