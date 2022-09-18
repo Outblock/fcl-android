@@ -67,10 +67,13 @@ private fun setup(application: Application, meta: WalletConnectMeta) {
         )
     )
 
-    SignClient.initialize(initString) { error -> loge(error.throwable) }
+    val result = runCatching {
+        SignClient.initialize(initString) { error -> loge(error.throwable) }
 
-    SignClient.setDappDelegate(WalletConnectDappDelegate())
-    SignClient.WebSocket.open { error -> logw(TAG, "open error:$error") }
+        SignClient.setDappDelegate(WalletConnectDappDelegate())
+        SignClient.WebSocket.open { error -> logw(TAG, "open error:$error") }
+    }
+    logd(TAG, "setup result:$result")
 }
 
 data class WalletConnectMeta(
