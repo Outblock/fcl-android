@@ -1,6 +1,10 @@
 package io.outblock.fcl.strategies.walletconnect
 
 import android.app.Application
+import com.walletconnect.android.Core
+import com.walletconnect.android.CoreClient
+import com.walletconnect.android.relay.ConnectionType
+import com.walletconnect.android.relay.RelayClient
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import io.outblock.fcl.lifecycle.LifecycleObserver
@@ -25,7 +29,7 @@ internal class WalletConnect {
 
     fun sessionCount(): Int = sessions().size
 
-    fun sessions() = SignClient.getListOfSettledSessions().filter { it.metaData != null }
+    fun sessions() = SignClient.getListOfActiveSessions().filter { it.metaData != null }
 
     fun disconnect(topic: String) {
         SignClient.disconnect(Sign.Params.Disconnect(sessionTopic = topic)) { error -> loge(error.throwable) }
@@ -54,26 +58,34 @@ internal class WalletConnect {
 
 private fun setup(application: Application, meta: WalletConnectMeta) {
     logd(TAG, "setup meta:$meta")
-    val initString = Sign.Params.Init(
-        application = application,
-        relayServerUrl = "wss://relay.walletconnect.com?projectId=${meta.projectId}".trim(),
-        connectionType = Sign.ConnectionType.MANUAL,
-        metadata = Sign.Model.AppMetaData(
-            name = meta.name,
-            description = meta.description,
-            url = meta.url,
-            icons = listOf(meta.icon),
-            redirect = "${application.packageName}\$fromSdk",
-        )
+    val appMetaData = Core.Model.AppMetaData(
+        name = meta.name,
+        description = meta.description,
+        url = meta.url,
+        icons = listOf(meta.icon),
+        redirect = "${application.packageName}\$fromSdk",
     )
 
-    val result = runCatching {
-        SignClient.initialize(initString) { error -> loge(error.throwable) }
-
-        SignClient.setDappDelegate(WalletConnectDappDelegate())
-        SignClient.WebSocket.open { error -> logw(TAG, "open error:$error") }
+    CoreClient.initialize(
+        metaData = appMetaData,
+        relayServerUrl = "wss://relay.walletconnect.com?projectId=${meta.projectId}",
+        connectionType = ConnectionType.MANUAL,
+        application = application,
+    ) {
+        logw(TAG, "WalletConnect init error: $it")
     }
-    logd(TAG, "setup result:$result")
+    SignClient.initialize(
+        Sign.Params.Init(core = CoreClient),
+        onSuccess = {
+            RelayClient.connect { error: Core.Model.Error ->
+                logw(TAG, "RelayClient connect error: $error")
+            }
+        }
+    ) {
+        logw(TAG, "SignClient init error: $it")
+    }
+
+    SignClient.setDappDelegate(WalletConnectDappDelegate())
 }
 
 data class WalletConnectMeta(

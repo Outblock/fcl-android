@@ -3,6 +3,8 @@ package io.outblock.fcl.strategies.walletconnect
 import android.content.Intent
 import android.net.Uri
 import com.google.gson.Gson
+import com.walletconnect.android.Core
+import com.walletconnect.android.CoreClient
 import com.walletconnect.sign.client.Sign
 import com.walletconnect.sign.client.SignClient
 import io.outblock.fcl.Fcl
@@ -37,14 +39,22 @@ internal suspend fun wcFetchPairUriInternal() = suspendCoroutine<String?> { cont
             chains = listOf("flow:${if (Fcl.isMainnet()) "mainnet" else "testnet"}"),
             methods = WalletConnectMethod.values().map { it.value },
             events = listOf("chainChanged", "accountsChanged"),
-            extensions = null
         )
     )
 
-    val connectParams = Sign.Params.Connect(namespaces = namespaces)
+    val pairing: Core.Model.Pairing = CoreClient.Pairing.create() { error ->
+        throw IllegalStateException("Creating Pairing failed: ${error.throwable.stackTraceToString()}")
+    }!!
 
-    SignClient.connect(connectParams,
-        onProposedSequence = { continuation.resume((it as Sign.Model.ProposedSequence.Pairing).uri) },
+    val connectParams =
+        Sign.Params.Connect(
+            namespaces = namespaces.toMutableMap(),
+            pairing = pairing
+        )
+
+    SignClient.connect(
+        connectParams,
+        onSuccess = { continuation.resume(pairing.uri) },
         onError = { error ->
             loge(error.throwable)
             continuation.resumeWithException(error.throwable)
