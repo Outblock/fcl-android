@@ -1,6 +1,7 @@
 package io.outblock.fcl.strategies.walletconnect
 
 import com.google.gson.Gson
+import com.nftco.flow.sdk.hexToBytes
 import com.walletconnect.sign.client.Sign
 import io.outblock.fcl.models.response.PollingResponse
 import io.outblock.fcl.utils.FclError
@@ -32,7 +33,7 @@ internal fun dispatchWcRequestResponse(response: Sign.Model.SessionRequestRespon
 }
 
 private fun Sign.Model.SessionRequestResponse.pollingResponse(): PollingResponse {
-    val json = (result as Sign.Model.JsonRpcResponse.JsonRpcResult).result
+    val json = String((result as Sign.Model.JsonRpcResponse.JsonRpcResult).result.hexToBytes())
     logd("wallet connect", "pollingResponse json:$json")
     return Gson().fromJson(json, PollingResponse::class.java)
 }

@@ -8,7 +8,10 @@ import android.net.Uri
 
 internal class FCLContentProvider : ContentProvider() {
     override fun onCreate(): Boolean {
-        (context?.applicationContext as? Application)?.let { LifecycleObserver.register(it) }
+        (context?.applicationContext as? Application)?.let {
+            AppLifecycleObserver.observe()
+            LifecycleObserver.register(it)
+        }
         return false
     }
 
