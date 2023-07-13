@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                         txidView.text = result.value
                         txidLayout.visibility = View.VISIBLE
                         viewOnFlowScanView.setOnClickListener {
-                            "https://${if (Fcl.isMainnet()) "" else "testnet."}flowscan.org/transaction/$result".openInSystemBrowser(
+                            "https://${if (Fcl.isMainnet()) "" else "testnet."}flowscan.org/transaction/${result.value}".openInSystemBrowser(
                                 this@MainActivity
                             )
                         }
