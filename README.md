@@ -123,7 +123,7 @@ val tid = Fcl.mutate {
 ```
 
 ## Compatibility
-**Minimum Android SDK**: FCL Android requires a minimum API level of 21.
+**Minimum Android SDK**: FCL Android requires a minimum API level of 23.
 
 ## License
 See the [LICENSE](https://github.com/Outblock/fcl-android/blob/main/LICENSE) file for details.
