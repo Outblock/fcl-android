@@ -36,8 +36,8 @@ class FclApplication : Application() {
             projectId = "29b38ec12be4bd19bf03d7ccef29aaa6",
             name = "FCL Android Wallet Connect Test",
             description = "Dapp description",
-            url = "https://link.lilico.app",
-            icon = "https://lilico.app/logo.png",
+            url = "https://frw-link.lilico.app/wc",
+            icon = "https://lilico.app/fcw-logo.png",
         )
         Fcl.config(
             appMetadata = appMetadata,

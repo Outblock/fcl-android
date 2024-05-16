@@ -66,10 +66,10 @@ enum class WalletProvider(
         endpoint = URL("https://flow-wallet.blocto.app/api/flow/"),
         testNetEndpoint = URL("https://flow-wallet-testnet.blocto.app/api/flow/"),
     ),
-    LILICO(
-        title = "Lilico",
+    FLOW_WALLET(
+        title = "FlowWallet",
         method = ServiceMethod.WC_RPC,
-        endpoint = URL("https://lilico.app/"),
-        testNetEndpoint = URL("https://lilico.app/"),
+        endpoint = URL("https://wallet.flow.com/"),
+        testNetEndpoint = URL("https://wallet.flow.com/"),
     )
 }
