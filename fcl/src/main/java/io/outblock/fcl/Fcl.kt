@@ -30,7 +30,7 @@ object Fcl {
     const val version = "@outblock/fcl-android@0.0.1"
 
     init {
-        providers.add(WalletProvider.LILICO)
+        providers.add(WalletProvider.FLOW_WALLET)
         providers.add(WalletProvider.BLOCTO)
         providers.add(WalletProvider.DAPPER)
     }
