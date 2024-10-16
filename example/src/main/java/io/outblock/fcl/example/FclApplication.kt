@@ -33,7 +33,7 @@ class FclApplication : Application() {
         )
 
         val walletConnectMeta = WalletConnectMeta(
-            projectId = "29b38ec12be4bd19bf03d7ccef29aaa6",
+            projectId = "c284f5a3346da817aeca9a4e6bc7f935",
             name = "FCL Android Wallet Connect Test",
             description = "Dapp description",
             url = "https://frw-link.lilico.app/wc",
